@@ -22,7 +22,6 @@ public class FilmController {
     //Хотел назвать эту константу по правилам (капсом), но чекстайл не пропустил =D
     private final String incorrectFilmId = "Фильм с таким id не найден";
 
-
     @GetMapping
     public List<Film> showAllFilms() {
         log.trace("Выведен список фильмов");
@@ -61,7 +60,7 @@ public class FilmController {
         } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.info("Недопустимая дата выхода фильма: {}", film.getReleaseDate());
             throw new FieldValidationException("Дата выхода фильма не может быть раньше 28.12.1895");
-        } else if (film.getDuration().isNegative()) {
+        } else if (film.getDuration() < 0) {
             log.info("Недопустимая продолжительность фильма: {}", film.getDuration());
             throw new FieldValidationException("Продолжительность фильма не может быть отрицательной");
         }
