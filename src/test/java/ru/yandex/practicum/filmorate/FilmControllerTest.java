@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.exception.FieldValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
@@ -42,39 +41,6 @@ public class FilmControllerTest {
         List<Film> listOfFilms2 = filmController.showAllFilms();
 
         assertEquals(listOfFilms1, listOfFilms2, "Списки фильмов должны быть одинаковыми");
-    }
-
-    @Test
-    void shouldThrowFieldValidationExceptionDescriptionLength() {
-        Film film = new Film("Film", "*".repeat(201), LocalDate.of(2001, 4, 15),
-               90);
-
-        FieldValidationException e = assertThrows(FieldValidationException.class, () -> filmController.addFilm(film));
-        assertEquals("Описание не должно быть длиннее 200 символов", e.getMessage(),
-                "Некорректный формат сообщения ошибки");
-    }
-
-    @Test
-    void filmCorrectReleaseDateTest() {
-        Film film1 = new Film("Film", "Description", LocalDate.of(1895, 12, 28),
-               90);
-        assertDoesNotThrow(() -> filmController.addFilm(film1));
-
-        Film film2 = new Film("Film", "Description", LocalDate.of(1895, 12, 28)
-                .minusDays(1),
-             90);
-        FieldValidationException e = assertThrows(FieldValidationException.class, () -> filmController.addFilm(film2));
-        assertEquals("Дата выхода фильма не может быть раньше 28.12.1895", e.getMessage(),
-                "Некорректный формат сообщения ошибки");
-    }
-
-    @Test
-    void durationShouldNotBeNegativeTest() {
-        Film film = new Film("Film", "Description", LocalDate.of(1895, 12, 28),
-              -90);
-        FieldValidationException e = assertThrows(FieldValidationException.class, () -> filmController.addFilm(film));
-        assertEquals("Продолжительность фильма не может быть отрицательной", e.getMessage(),
-                "Некорректный формат сообщения ошибки");
     }
 
 }

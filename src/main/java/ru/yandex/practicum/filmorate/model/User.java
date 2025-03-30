@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -15,16 +13,17 @@ public class User {
     private Integer id; //значение полю будет задаваться контроллером, остальные поля должны быть заполнены заранее
 
     @Email(message = "Некорректно заполненный электронный адрес")
-    @NotNull(message = "Электронный адрес необходимо заполнить")
+    @NotBlank(message = "Электронный адрес необходимо заполнить")
     private final String email;
 
-    @NotNull(message = "Необходимо указать логин")
     @NotBlank(message = "Необходимо указать логин")
+    @Pattern(regexp = "\\S+", message = "Логин не должен содержать пробелов")
     private final String login;
 
     private String name;
 
     @NotNull(message = "Необходимо указать дату рождения")
+    @Past
     private final LocalDate birthday;
 
 
