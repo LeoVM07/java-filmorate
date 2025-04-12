@@ -6,11 +6,15 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
 
     private Integer id; //значение полю будет задаваться контроллером, остальные поля должны быть заполнены заранее
+
+    private Set<Integer> friendsIds = new HashSet<>();
 
     @Email(message = "Некорректно заполненный электронный адрес")
     @NotBlank(message = "Электронный адрес необходимо заполнить")

@@ -3,55 +3,66 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.IdException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
+    private final InMemoryUserStorage userStorage;
+    private final UserService userService;
 
-    private final Map<Integer, User> allUsers = new HashMap<>();
-    private int id = 1;
+    @Autowired
+    public UserController(InMemoryUserStorage userStorage, UserService userService) {
+        this.userStorage = userStorage;
+        this.userService = userService;
+    }
 
     @GetMapping
-    public List<User> showAllUsers() {
-        log.trace("Выведен список пользователей");
-        return allUsers.values().stream().toList();
+    public ResponseEntity<List<User>> showAllUsers() {
+        return new ResponseEntity<>(userStorage.showAllUsers(), HttpStatus.OK);
     }
 
     @PostMapping
-    public User addUser(@Valid @RequestBody User user) {
-        user.setId(generateId());
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-            log.info("Пользователь не указал имя, для заполнения поля был использован его логин: {}",
-                    user.getLogin());
-        }
-        allUsers.put(user.getId(), user);
-        log.info("Добавлен новый пользователь под именем: {}, id: {}", user.getName(), user.getId());
-        return user;
+    public ResponseEntity<User> addUser(@Valid @RequestBody User user) {
+        return new ResponseEntity<>(userStorage.addUser(user), HttpStatus.OK);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
-        if (allUsers.containsKey(user.getId())) {
-            allUsers.replace(user.getId(), user);
-            log.info("Обновлены данные пользователя под именем: {}, id: {}", user.getName(), user.getId());
-            return user;
-        }
-        log.error("Некорректный id: {}", user.getId());
-        throw new IdException("Пользователь с таким id не найден");
+    public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
+        return new ResponseEntity<>(userStorage.updateUser(user), HttpStatus.OK);
     }
 
-    private int generateId() {
-        return id++;
+    @PutMapping("/{userId}/friends/{friendId}")
+    public ResponseEntity<List<User>> addFriend(@PathVariable("userId") int userId,
+                                                @PathVariable("friendId") int friendId) {
+        return new ResponseEntity<>(userService.addFriend(userId, friendId), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{userId}/friends/{friendId}")
+    public ResponseEntity<User> deleteFriend(@PathVariable("userId") int userId,
+                                             @PathVariable("friendId") int friendId) {
+        return new ResponseEntity<>(userService.deleteFriend(userId, friendId), HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}/friends")
+    public ResponseEntity<List<User>> getAllUsersFriends(@PathVariable("userId") int userId) {
+        return new ResponseEntity<>(userService.getAllUserFriends(userId), HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}/friends/common/{friendId}")
+    public ResponseEntity<List<User>> getCommonFriends(@PathVariable("userId") int userId,
+                                       @PathVariable("friendId") int friendId) {
+        return new ResponseEntity<>(userService.getCommonFriends(userId, friendId), HttpStatus.OK);
     }
 
 }
