@@ -8,6 +8,8 @@ public interface UserStorage {
 
     public List<User> showAllUsers();
 
+    public User showUser(int userId);
+
     public User addUser(User user);
 
     public User updateUser(User user);

@@ -26,6 +26,17 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
+    public User showUser(@Valid int userId) {
+        if (allUsers.containsKey(userId)) {
+            log.trace("Пользователь с id: {} найден", userId);
+            return allUsers.get(userId);
+        } else {
+            log.error("Некорректный id: {}", userId);
+            throw new UserIdException(userId);
+        }
+    }
+
+    @Override
     public User addUser(@Valid User user) {
         user.setId(generateId());
         if (user.getName() == null || user.getName().isBlank()) {

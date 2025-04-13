@@ -19,6 +19,22 @@ public class FilmService extends BasicService {
         super(userStorage, filmStorage);
     }
 
+    public List<Film> showAllFilms() {
+        return getFilmStorage().showAllFilms();
+    }
+
+    public Film showFilm(int filmId) {
+        return getFilmStorage().showFilm(filmId);
+    }
+
+    public Film addFilm(Film film) {
+        return getFilmStorage().addFilm(film);
+    }
+
+    public Film updateFilm(Film film) {
+        return getFilmStorage().updateFilm(film);
+    }
+
     public Film addLikeToFilm(int filmId, int userId) {
         Film film = checkFilm(filmId);
         checkUser(userId);

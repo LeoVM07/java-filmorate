@@ -16,6 +16,22 @@ public class UserService extends BasicService {
         super(userStorage, filmStorage);
     }
 
+    public List<User> showAllUsers() {
+        return getUserStorage().showAllUsers();
+    }
+
+    public User showUser(int userId) {
+        return getUserStorage().showUser(userId);
+    }
+
+    public User addUser(User user) {
+        return getUserStorage().addUser(user);
+    }
+
+    public User updateUser(User user) {
+        return getUserStorage().updateUser(user);
+    }
+
     public List<User> addFriend(int userId, int friendId) {
         User user = checkUser(userId);
         User friend = checkUser(friendId);

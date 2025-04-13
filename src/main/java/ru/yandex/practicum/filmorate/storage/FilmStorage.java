@@ -8,6 +8,8 @@ public interface FilmStorage {
 
     public List<Film> showAllFilms();
 
+    public Film showFilm(int filmId);
+
     public Film addFilm(Film film);
 
     public Film updateFilm(Film film);
