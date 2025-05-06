@@ -5,11 +5,15 @@ import lombok.Data;
 import ru.yandex.practicum.filmorate.validator.ReleaseDate;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Film {
 
     private Integer id; //значение полю будет задаваться контроллером, остальные поля должны быть заполнены заранее
+
+    private Set<Integer> likes = new HashSet<>();
 
     @NotBlank(message = "Необходимо указать название фильма")
     private final String name;
