@@ -1,52 +1,73 @@
 package ru.yandex.practicum.filmorate;
 
-import org.junit.jupiter.api.BeforeEach;
+import jakarta.validation.constraints.AssertTrue;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.Import;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.dal.mappers.UserRowMapper;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+@JdbcTest
+@AutoConfigureTestDatabase
+@Import({UserRepository.class, UserRowMapper.class})
 public class UserStorageTest {
 
-    UserStorage userStorage;
+    @Autowired
+    private UserRepository storage;
+    private final User user = new User("Test_User", "Test_Login", "test@gmail.com", LocalDate.of(2000, 1, 1));
 
-    @BeforeEach
-    void createUserController() {
-        this.userStorage = new InMemoryUserStorage();
+    @Test
+    public void createUser() {
+        User created = storage.addUser(user);
+
+        Assertions.assertNotNull(created.getId());
+        Assertions.assertEquals(1, storage.showAllUsers().size());
     }
 
     @Test
-    void usersShouldBeEqual() {
-        User user1 = new User("testemail@yandex.ru", "Test_Login", "TestName",
-                LocalDate.of(1999, 11, 8));
-        User user2 = userStorage.addUser(user1);
-        assertEquals(user1, user2, "Пользователи должны быть одинаковыми");
+    public void getUser() {
+        User created = storage.addUser(user);
+        User found = storage.showUser(created.getId()).get();
+
+        Assertions.assertEquals(user.getName(), found.getName());
+        Assertions.assertEquals(user.getLogin(), found.getLogin());
+        Assertions.assertEquals(user.getEmail(), found.getEmail());
+        Assertions.assertEquals(user.getBirthday(), found.getBirthday());
     }
 
     @Test
-    void userListShouldBeEqual() {
-        User user1 = new User("testemail@yandex.ru", "Test_Login", "TestName",
-                LocalDate.of(1999, 11, 8));
-        User user2 = new User("anotheremail@yandex.ru", "Another_Login", "TestName",
-                LocalDate.of(1999, 11, 8));
-        List<User> userList1 = List.of(user1, user2);
-
-        userStorage.addUser(user1);
-        userStorage.addUser(user2);
-        List<User> userList2 = userStorage.showAllUsers();
-
-        assertEquals(userList1, userList2, "Списки пользователей должны быть одинаковыми");
+    void getNonExisting() {
+        long nonExistentId = 69;
+        Optional<User> userOpt = storage.showUser(nonExistentId);
+        Assertions.assertTrue(userOpt.isEmpty());
     }
 
     @Test
-    void userNameShouldBeEqualUserLogin() {
-        User user = new User("testemail@yandex.ru", "Test_Login",
-                LocalDate.of(1999, 11, 8));
-        assertEquals(user.getName(), user.getLogin(), "Имя и логин пользователя должны совпадать");
+    public void testUpdateUser() {
+        User created = storage.addUser(user);
+        LocalDate newDate = LocalDate.of(1991, 1, 1);
+
+
+        User updated = new User(
+                "new_email@gmail.com",
+                "new_login",
+                "new_name",
+                newDate);
+        updated.setId(created.getId());
+
+        storage.updateUser(updated);
+        User found = storage.showUser(created.getId()).get();
+
+        Assertions.assertEquals("new_login", found.getLogin());
+        Assertions.assertEquals("new_name", found.getName());
+        Assertions.assertEquals("new_email@gmail.com", found.getEmail());
+        Assertions.assertEquals(newDate, found.getBirthday());
     }
 }
