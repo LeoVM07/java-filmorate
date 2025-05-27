@@ -16,6 +16,5 @@ public class ReleaseDateValidator implements ConstraintValidator<ReleaseDate, Lo
     public boolean isValid(LocalDate date, ConstraintValidatorContext context) {
         LocalDate validDate = LocalDate.of(1895, 12, 28);
         return date.isEqual(validDate) || date.isAfter(validDate);
-
     }
 }

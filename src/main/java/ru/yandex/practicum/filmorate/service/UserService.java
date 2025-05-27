@@ -1,80 +1,77 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.exception.DuplicateUserIdException;
+import ru.yandex.practicum.filmorate.exception.UserIdException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.util.*;
 
 @Slf4j
 @Service
-public class UserService extends BasicService {
-
-    public UserService(InMemoryUserStorage userStorage, InMemoryFilmStorage filmStorage) {
-        super(userStorage, filmStorage);
-    }
+@RequiredArgsConstructor
+public class UserService {
+    private final UserRepository repository;
 
     public List<User> showAllUsers() {
-        return getUserStorage().showAllUsers();
+        return repository.showAllUsers();
     }
 
     public User showUser(int userId) {
-        return getUserStorage().showUser(userId);
+        return checkUser(userId);
     }
 
     public User addUser(User user) {
-        return getUserStorage().addUser(user);
+        return repository.addUser(user);
     }
 
     public User updateUser(User user) {
-        return getUserStorage().updateUser(user);
+        checkUser(user.getId());
+        return repository.updateUser(user);
     }
 
-    public List<User> addFriend(int userId, int friendId) {
-        User user = checkUser(userId);
-        User friend = checkUser(friendId);
-
-        user.getFriendsIds().add(friendId);
-        friend.getFriendsIds().add(userId);
+    public Map<String, String> addFriend(long userId, long friendId) {
+        checkUser(userId);
+        checkUser(friendId);
+        if (userId == friendId) {
+            throw new DuplicateUserIdException();
+        }
 
         log.info("Пополнение списка друзей пользователей с id: {}, {}", userId, friendId);
-        return List.of(user, friend);
+        repository.addFriendToUser(userId, friendId);
+        return Map.of("result", String.format("user with id %d was added as friend", friendId));
     }
 
-    public User deleteFriend(int userId, int friendId) {
-        User user = checkUser(userId);
-        User friend = checkUser(friendId);
-
-        user.getFriendsIds().remove(friendId);
-        friend.getFriendsIds().remove(userId);
+    public Map<String, String> deleteFriend(long userId, long friendId) {
+        checkUser(userId);
+        checkUser(friendId);
 
         log.info("Удаление из списка друзей пользователей с id: {}, {}", userId, friendId);
-        return friend;
+        repository.deleteFriendFromUser(userId, friendId);
+        return Map.of("result", String.format("user with id %d was removed from friend list", friendId));
     }
 
-    public List<User> getAllUserFriends(int userId) {
-        User user = checkUser(userId);
-        Set<Integer> userFriends = user.getFriendsIds();
+    public List<User> getAllUserFriends(long userId) {
+        checkUser(userId);
         log.trace("Выведен список друзей пользователя с id:{}", userId);
-        return getUserStorage()
-                .getAllUsers()
-                .values()
-                .stream()
-                .filter(u -> userFriends.contains(u.getId()))
-                .toList();
+        return repository.showAllUserFriends(userId);
     }
 
-    public List<User> getCommonFriends(int userId, int friendId) {
+
+    public List<User> getCommonFriends(long userId, long friendId) {
         checkUser(userId);
         checkUser(friendId);
         log.trace("Выведен список общих друзей пользователей с id:{} и {}", userId, friendId);
-        return getUserStorage()
-                .getAllUsers()
-                .values()
+        return repository.showCommonFriends(userId, friendId);
+    }
+
+    private User checkUser(long userId) {
+        return repository.showUser(userId)
                 .stream()
-                .filter(user -> user.getFriendsIds().contains(userId) && user.getFriendsIds().contains(friendId))
-                .toList();
+                .findAny()
+                .orElseThrow(() -> new UserIdException(userId));
     }
 }
