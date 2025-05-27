@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -29,7 +30,7 @@ public class FilmController {
     }
 
     @GetMapping("/{filmId}")
-    public ResponseEntity<Film> showFilm(@PathVariable("filmId") int filmId) {
+    public ResponseEntity<Film> showFilm(@PathVariable("filmId") long filmId) {
         return new ResponseEntity<>(filmService.showFilm(filmId), HttpStatus.OK);
     }
 
@@ -47,14 +48,14 @@ public class FilmController {
     }
 
     @PutMapping("/{filmId}/like/{userId}")
-    public ResponseEntity<Film> addLike(@PathVariable("filmId") int filmId,
-                                        @PathVariable("userId") int userId) {
+    public ResponseEntity<Map<String, String>> addLike(@PathVariable("filmId") long filmId,
+                                                       @PathVariable("userId") long userId) {
         return new ResponseEntity<>(filmService.addLikeToFilm(filmId, userId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
-    public ResponseEntity<Film> deleteLike(@PathVariable("filmId") int filmId,
-                                           @PathVariable("userId") int userId) {
+    public ResponseEntity<Map<String, String>> deleteLike(@PathVariable("filmId") long filmId,
+                                                          @PathVariable("userId") long userId) {
         return new ResponseEntity<>(filmService.deleteLikeFromFilm(filmId, userId), HttpStatus.OK);
     }
 
@@ -65,4 +66,5 @@ public class FilmController {
                     defaultValue = "10") int count) {
         return new ResponseEntity<>(filmService.showMostPopularFilms(count), HttpStatus.OK);
     }
+
 }
