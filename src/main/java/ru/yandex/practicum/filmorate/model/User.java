@@ -6,15 +6,11 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 public class User {
 
-    private Integer id; //значение полю будет задаваться контроллером, остальные поля должны быть заполнены заранее
-
-    private Set<Integer> friendsIds = new HashSet<>();
+    private Long id; //значение полю будет задаваться контроллером, остальные поля должны быть заполнены заранее
 
     @Email(message = "Некорректно заполненный электронный адрес")
     @NotBlank(message = "Электронный адрес необходимо заполнить")
@@ -24,19 +20,16 @@ public class User {
     @Pattern(regexp = "\\S+", message = "Логин не должен содержать пробелов")
     private final String login;
 
+    @Setter
     private String name;
 
     @NotNull(message = "Необходимо указать дату рождения")
     @Past
     private final LocalDate birthday;
 
-
-    public User(String email,
-                String login,
-                LocalDate birthday) {
+    public User(String email, String login, LocalDate birthday) {
         this.email = email;
         this.login = login;
-        this.name = login;
         this.birthday = birthday;
     }
 

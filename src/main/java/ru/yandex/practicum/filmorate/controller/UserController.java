@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -45,14 +46,14 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/friends/{friendId}")
-    public ResponseEntity<List<User>> addFriend(@PathVariable("userId") int userId,
-                                                @PathVariable("friendId") int friendId) {
+    public ResponseEntity<Map<String, String>> addFriend(@PathVariable("userId") long userId,
+                                                         @PathVariable("friendId") long friendId) {
         return new ResponseEntity<>(userService.addFriend(userId, friendId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
-    public ResponseEntity<User> deleteFriend(@PathVariable("userId") int userId,
-                                             @PathVariable("friendId") int friendId) {
+    public ResponseEntity<Map<String, String>> deleteFriend(@PathVariable("userId") int userId,
+                                                            @PathVariable("friendId") int friendId) {
         return new ResponseEntity<>(userService.deleteFriend(userId, friendId), HttpStatus.OK);
     }
 
@@ -60,6 +61,7 @@ public class UserController {
     public ResponseEntity<List<User>> getAllUsersFriends(@PathVariable("userId") int userId) {
         return new ResponseEntity<>(userService.getAllUserFriends(userId), HttpStatus.OK);
     }
+
 
     @GetMapping("/{userId}/friends/common/{friendId}")
     public ResponseEntity<List<User>> getCommonFriends(@PathVariable("userId") int userId,

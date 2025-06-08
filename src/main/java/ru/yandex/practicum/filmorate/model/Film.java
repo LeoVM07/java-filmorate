@@ -1,19 +1,19 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.comparator.GenreIdComparator;
 import ru.yandex.practicum.filmorate.validator.ReleaseDate;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
+@Builder
 @Data
 public class Film {
 
-    private Integer id; //значение полю будет задаваться контроллером, остальные поля должны быть заполнены заранее
-
-    private Set<Integer> likes = new HashSet<>();
+    private Long id; //значение полю будет задаваться контроллером, остальные поля должны быть заполнены заранее
 
     @NotBlank(message = "Необходимо указать название фильма")
     private final String name;
@@ -30,4 +30,8 @@ public class Film {
     @Positive(message = "Продолжительность фильма должна быть положительным числом")
     private final long duration;
 
+    @NotNull(message = "Необходимо указать возрастную категорию фильма")
+    private Mpa mpa;
+
+    private final Set<Genre> genres = new TreeSet<>(new GenreIdComparator());
 }
