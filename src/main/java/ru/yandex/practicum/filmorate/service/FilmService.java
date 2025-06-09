@@ -72,6 +72,10 @@ public class FilmService {
         return filmRepository.showMostPopularFilms(count);
     }
 
+    public List<Film> showFilmsByDirectorSorted(long directorId, String sortFilmsBy) {
+        return filmRepository.showFilmsByDirector(directorId, sortFilmsBy);
+    }
+
     private Film checkFilm(long filmId) {
         return filmRepository.showFilm(filmId)
                 .stream()

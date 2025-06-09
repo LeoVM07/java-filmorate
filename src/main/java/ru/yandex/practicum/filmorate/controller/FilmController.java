@@ -67,4 +67,10 @@ public class FilmController {
         return new ResponseEntity<>(filmService.showMostPopularFilms(count), HttpStatus.OK);
     }
 
+    @GetMapping("/director/{directorId}")
+    public ResponseEntity<List<Film>> showFilmsByDirectorSorted(@PathVariable("directorId") long directorId,
+                                                                @RequestParam(name = "sortBy") String sortFilmsBy) {
+        return new ResponseEntity<>(filmService.showFilmsByDirectorSorted(directorId, sortFilmsBy), HttpStatus.OK);
+    }
+
 }
