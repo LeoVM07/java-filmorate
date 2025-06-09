@@ -77,7 +77,7 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
             WHERE d.director_id = ?
             GROUP BY f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id,
             fg.genre_id, g.genre_name, mpa.rating_name, fd.director_id, d.director_name
-            ORDER BY like_count ASC
+            ORDER BY like_count DESC
             """;
 
     private static final String SHOW_FILMS_BY_DIRECTOR_ID_SORT_BY_YEAR_QUERY = """

@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.dal.GenreRepository;
 import ru.yandex.practicum.filmorate.dal.MpaRepository;
 import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.exception.DirectorIdException;
 import ru.yandex.practicum.filmorate.exception.FilmIdException;
 import ru.yandex.practicum.filmorate.exception.GenreIdException;
 import ru.yandex.practicum.filmorate.exception.MpaIdException;
@@ -73,7 +74,11 @@ public class FilmService {
     }
 
     public List<Film> showFilmsByDirectorSorted(long directorId, String sortFilmsBy) {
-        return filmRepository.showFilmsByDirector(directorId, sortFilmsBy);
+        List<Film> filmsByDirector =  filmRepository.showFilmsByDirector(directorId, sortFilmsBy);
+        if (filmsByDirector.isEmpty()) {
+            throw new DirectorIdException(directorId);
+        }
+        return filmsByDirector;
     }
 
     private Film checkFilm(long filmId) {
