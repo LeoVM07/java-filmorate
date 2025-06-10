@@ -251,5 +251,8 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
         }
     }
 
-
+    public int getTotalFilmsCount() {
+        String sql = "SELECT COUNT(*) FROM films";
+        return jdbc.queryForObject(sql, Integer.class);
+    }
 }

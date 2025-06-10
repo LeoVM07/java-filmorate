@@ -60,7 +60,13 @@ public class ErrorHandler {
         return new ErrorResponse("Повторное введение id", e.getMessage());
     }
 
-    //класс для формирования ответа при обработке исключений
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleCountException(final CountException e) {
+        log.error("Ошибка параметра count: {}", e.getMessage());
+        return new ErrorResponse("Ошибка в параметре запроса", e.getMessage());
+    }
+
     @Getter
     public static class ErrorResponse {
         private final String error;
