@@ -7,11 +7,7 @@ import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.dal.GenreRepository;
 import ru.yandex.practicum.filmorate.dal.MpaRepository;
 import ru.yandex.practicum.filmorate.dal.UserRepository;
-import ru.yandex.practicum.filmorate.exception.DirectorIdException;
-import ru.yandex.practicum.filmorate.exception.FilmIdException;
-import ru.yandex.practicum.filmorate.exception.GenreIdException;
-import ru.yandex.practicum.filmorate.exception.MpaIdException;
-import ru.yandex.practicum.filmorate.exception.UserIdException;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -68,6 +64,10 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilmsByGenreYear(int count, Long genreId, Integer year) {
+        if (count <= 0) {
+            throw new CountException("Параметр count должен быть положительным числом");
+        }
+
         if (genreId != null) {
             genreRepository.showGenreById(genreId)
                     .orElseThrow(() -> new GenreIdException(genreId));
