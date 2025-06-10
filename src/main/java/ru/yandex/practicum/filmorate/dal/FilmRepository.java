@@ -144,6 +144,14 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
     LEFT JOIN mpa_rating AS mpa ON films.rating_id = mpa.rating_id;
     """;
 
+    private static final String DELETE_FILM_DIRECTORS_QUERY = """
+            DELETE film_directors WHERE film_id = ?
+            """;
+
+    private static final String ADD_FILM_DIRECTOR_QUERY = """
+            INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)
+            """;
+
     @Autowired
     public FilmRepository(JdbcTemplate jdbc,
                           FilmResultSetExtractor extractor,
