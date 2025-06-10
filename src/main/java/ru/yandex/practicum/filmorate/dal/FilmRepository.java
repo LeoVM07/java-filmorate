@@ -63,22 +63,27 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
     private static final String DELETE_FILM_GENRE_QUERY = "DELETE film_genres WHERE film_id = ?";
     private static final String ADD_LIKE_TO_FILM_QUERY = "INSERT INTO likes(film_id, user_id) VALUES(?, ?);";
     private static final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE likes WHERE film_id = ? AND user_id = ?";
-    private static final String SHOW_MOST_POPULAR_FILM_QUERY = """
-            SELECT films.*,
-            fg.genre_id,
-            g.genre_name,
-            mpa.rating_name
-            FROM (SELECT likes.film_id,
-             COUNT(likes.like_id) AS count_likes
-             FROM likes
-             GROUP BY film_id
-             ORDER BY COUNT(likes.like_id) DESC
-             LIMIT ?) as l
-            LEFT JOIN films ON l.film_id = films.film_id
-            LEFT JOIN film_genres AS fg ON films.film_id = fg.film_id
-            LEFT JOIN genres AS g ON fg.genre_id = g.genre_id
-            LEFT JOIN mpa_rating AS mpa ON films.rating_id = mpa.rating_id;
-            """;
+    private static final String GET_POPULAR_FILMS_BY_GENRE_YEAR_QUERY = """
+    SELECT films.*,
+    fg.genre_id,
+    g.genre_name,
+    mpa.rating_name
+    FROM (
+        SELECT likes.film_id, COUNT(likes.like_id) AS count_likes
+        FROM likes
+        LEFT JOIN films ON likes.film_id = films.film_id
+        LEFT JOIN film_genres fg ON likes.film_id = fg.film_id
+        WHERE (? IS NULL OR fg.genre_id = ?)
+        AND (? IS NULL OR EXTRACT(YEAR FROM films.release_date) = ?)
+        GROUP BY likes.film_id
+        ORDER BY COUNT(likes.like_id) DESC
+        LIMIT ?
+    ) AS l
+    LEFT JOIN films ON l.film_id = films.film_id
+    LEFT JOIN film_genres AS fg ON films.film_id = fg.film_id
+    LEFT JOIN genres AS g ON fg.genre_id = g.genre_id
+    LEFT JOIN mpa_rating AS mpa ON films.rating_id = mpa.rating_id;
+    """;
 
     @Autowired
     public FilmRepository(JdbcTemplate jdbc,
@@ -151,7 +156,7 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
     }
 
     @Override
-    public List<Film> showMostPopularFilms(int count) {
-        return extractMany(SHOW_MOST_POPULAR_FILM_QUERY, listExtractor, count);
+    public List<Film> getPopularFilmsByGenreYear(int count, Long genreId,Integer year) {
+        return extractMany(GET_POPULAR_FILMS_BY_GENRE_YEAR_QUERY, listExtractor,   genreId, genreId, year, year, count);
     }
 }
