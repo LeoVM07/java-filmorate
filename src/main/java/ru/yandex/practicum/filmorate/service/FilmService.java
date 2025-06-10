@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -68,9 +67,15 @@ public class FilmService {
         return Map.of("result", String.format("like was removed from film with id %d", filmId));
     }
 
-    public List<Film> showMostPopularFilms(@Positive int count) {
-        log.trace("Выведен список самых понравившихся фильмов");
-        return filmRepository.showMostPopularFilms(count);
+    public List<Film> getPopularFilmsByGenreYear(int count, Long genreId, Integer year) {
+        if (genreId != null) {
+            genreRepository.showGenreById(genreId)
+                    .orElseThrow(() -> new GenreIdException(genreId));
+        }
+
+        log.trace("Выведен список популярных фильмов. count={}, genreId={}, year={}",
+                count, genreId, year);
+        return filmRepository.getPopularFilmsByGenreYear(count, genreId, year);
     }
 
     public List<Film> showFilmsByDirectorSorted(long directorId, String sortFilmsBy) {
