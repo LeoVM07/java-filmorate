@@ -13,6 +13,13 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleDirectorIdException(final DirectorIdException e) {
+        log.error(e.getMessage());
+        return new ErrorResponse("Ошибка в id режиссёра", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleFilmIdException(final FilmIdException e) {
         log.error(e.getMessage());
         return new ErrorResponse("Ошибка в id фильма", e.getMessage());
