@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.exception.FilmIdException;
 import ru.yandex.practicum.filmorate.exception.GenreIdException;
 import ru.yandex.practicum.filmorate.exception.MpaIdException;
 import ru.yandex.practicum.filmorate.exception.UserIdException;
+import ru.yandex.practicum.filmorate.exception.FilmExtractionException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -89,10 +90,14 @@ public class FilmService {
     }
 
     private Film checkFilm(long filmId) {
-        return filmRepository.showFilm(filmId)
-                .stream()
-                .findAny()
-                .orElseThrow(() -> new FilmIdException(filmId));
+        try {
+            return filmRepository.showFilm(filmId)
+                    .stream()
+                    .findAny()
+                    .orElseThrow(() -> new FilmIdException(filmId));
+        } catch (FilmExtractionException e) {
+           throw new FilmIdException(filmId);
+        }
     }
 
     private void checkGenre(Set<Genre> genreSet) {

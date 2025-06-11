@@ -119,13 +119,6 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
             WHERE film_id = ?;
             """;
     private static final String DELETE_FILM_QUERY = "DELETE films WHERE film_id = ?";
-
-    /*    private static final String DELETE_FILM_QUERY = """
-                DELETE films
-                FROM films
-                LEFT JOIN film_genres fg ON films.film_id = fg.film_id
-                WHERE film_id = ?
-                """;*/
     private static final String ADD_FILM_GENRE_QUERY = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
     private static final String DELETE_FILM_GENRE_QUERY = "DELETE film_genres WHERE film_id = ?";
     private static final String ADD_LIKE_TO_FILM_QUERY = "INSERT INTO likes(film_id, user_id) VALUES(?, ?);";

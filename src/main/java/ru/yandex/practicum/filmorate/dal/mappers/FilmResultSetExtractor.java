@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.dal.mappers;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.FilmExtractionException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -16,6 +17,9 @@ public class FilmResultSetExtractor implements ResultSetExtractor<Film> {
 
     @Override
     public Film extractData(ResultSet rs) throws SQLException, DataAccessException {
+        if (!rs.next()) {
+            throw new FilmExtractionException("Ошибка при распаковке фильма");
+        }
         rs.next();
         Film film = Film.builder()
                 .name(rs.getString("name"))
