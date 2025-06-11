@@ -15,6 +15,8 @@ public interface FilmStorage {
 
     public Film updateFilm(Film film);
 
+    public void deleteFilm(long filmID);
+
     public void addLikeToFilm(long filmId, long userId);
 
     public void deleteLikeFromFilm(long filmId, long userId);
