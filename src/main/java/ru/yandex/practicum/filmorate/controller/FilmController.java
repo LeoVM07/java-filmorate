@@ -45,7 +45,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{filmId}")
-    public ResponseEntity<Map<String, String>> deleteFilm(@PathVariable("filmId") long filmId) {
+    public ResponseEntity<Map<String,String>> deleteFilm(@PathVariable("filmId") long filmId) {
         return new ResponseEntity<>(filmService.deleteFilm(filmId), HttpStatus.OK);
     }
 
