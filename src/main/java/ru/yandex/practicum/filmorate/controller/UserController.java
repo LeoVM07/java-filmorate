@@ -45,6 +45,11 @@ public class UserController {
         return new ResponseEntity<>(userService.updateUser(user), HttpStatus.OK);
     }
 
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable("userId") long userId) {
+        return new ResponseEntity<>(userService.deleteUser(userId), HttpStatus.OK);
+    }
+
     @PutMapping("/{userId}/friends/{friendId}")
     public ResponseEntity<Map<String, String>> addFriend(@PathVariable("userId") long userId,
                                                          @PathVariable("friendId") long friendId) {

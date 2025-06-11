@@ -51,6 +51,13 @@ public class FilmService {
         return checkFilm(film.getId());
     }
 
+    public Map<String, String> deleteFilm(long filmId) {
+        checkFilm(filmId);
+        filmRepository.deleteFilm(filmId);
+        log.info("Фильм с id {} был удалён из базы данных", filmId);
+        return Map.of("result", String.format("fim with id %d was deleted", filmId));
+    }
+
     public Map<String, String> addLikeToFilm(long filmId, long userId) {
         checkFilm(filmId);
         checkUser(userId);
