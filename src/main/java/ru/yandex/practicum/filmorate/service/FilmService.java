@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.dal.GenreRepository;
@@ -47,8 +48,8 @@ public class FilmService {
     public Film updateFilm(Film film) {
         checkMpa(film.getMpa().getId());
         checkGenre(film.getGenres());
-        filmRepository.updateFilm(film);
-        return checkFilm(film.getId());
+        checkFilm(film.getId());
+        return filmRepository.updateFilm(film);
     }
 
     public Map<String, String> deleteFilm(long filmId) {
@@ -89,10 +90,14 @@ public class FilmService {
     }
 
     private Film checkFilm(long filmId) {
-        return filmRepository.showFilm(filmId)
-                .stream()
-                .findAny()
-                .orElseThrow(() -> new FilmIdException(filmId));
+        try {
+            return filmRepository.showFilm(filmId)
+                    .stream()
+                    .findAny()
+                    .orElseThrow(() -> new FilmIdException(filmId));
+        } catch (DataIntegrityViolationException e) {
+            throw new FilmIdException(filmId);
+        }
     }
 
     private void checkGenre(Set<Genre> genreSet) {
