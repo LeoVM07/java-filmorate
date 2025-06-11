@@ -8,11 +8,7 @@ import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.dal.GenreRepository;
 import ru.yandex.practicum.filmorate.dal.MpaRepository;
 import ru.yandex.practicum.filmorate.dal.UserRepository;
-import ru.yandex.practicum.filmorate.exception.DirectorIdException;
-import ru.yandex.practicum.filmorate.exception.FilmIdException;
-import ru.yandex.practicum.filmorate.exception.GenreIdException;
-import ru.yandex.practicum.filmorate.exception.MpaIdException;
-import ru.yandex.practicum.filmorate.exception.UserIdException;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -47,8 +43,15 @@ public class FilmService {
     public Film updateFilm(Film film) {
         checkMpa(film.getMpa().getId());
         checkGenre(film.getGenres());
-        filmRepository.updateFilm(film);
-        return checkFilm(film.getId());
+        checkFilm(film.getId());
+        return filmRepository.updateFilm(film);
+    }
+
+    public Map<String, String> deleteFilm(long filmId) {
+        checkFilm(filmId);
+        filmRepository.deleteFilm(filmId);
+        log.info("Фильм с id {} был удалён из базы данных", filmId);
+        return Map.of("result", String.format("fim with id %d was deleted", filmId));
     }
 
     public Map<String, String> addLikeToFilm(long filmId, long userId) {
@@ -74,7 +77,7 @@ public class FilmService {
     }
 
     public List<Film> showFilmsByDirectorSorted(long directorId, String sortFilmsBy) {
-        List<Film> filmsByDirector =  filmRepository.showFilmsByDirector(directorId, sortFilmsBy);
+        List<Film> filmsByDirector = filmRepository.showFilmsByDirector(directorId, sortFilmsBy);
         if (filmsByDirector.isEmpty()) {
             throw new DirectorIdException(directorId);
         }
@@ -82,10 +85,14 @@ public class FilmService {
     }
 
     private Film checkFilm(long filmId) {
-        return filmRepository.showFilm(filmId)
-                .stream()
-                .findAny()
-                .orElseThrow(() -> new FilmIdException(filmId));
+        try {
+            return filmRepository.showFilm(filmId)
+                    .stream()
+                    .findAny()
+                    .orElseThrow(() -> new FilmIdException(filmId));
+        } catch (FilmExtractionException e) {
+            throw new FilmIdException(filmId);
+        }
     }
 
     private void checkGenre(Set<Genre> genreSet) {
