@@ -62,7 +62,7 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
     private static final String ADD_FILM_GENRE_QUERY = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
     private static final String DELETE_FILM_GENRE_QUERY = "DELETE film_genres WHERE film_id = ?";
     private static final String ADD_LIKE_TO_FILM_QUERY = "INSERT INTO likes(film_id, user_id) VALUES(?, ?);";
-    private static final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE likes WHERE film_id = ? AND user_id = ?";
+    private static final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
     private static final String SHOW_MOST_POPULAR_FILM_QUERY = """
             SELECT films.*,
             fg.genre_id,
@@ -153,5 +153,47 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
     @Override
     public List<Film> showMostPopularFilms(int count) {
         return extractMany(SHOW_MOST_POPULAR_FILM_QUERY, listExtractor, count);
+    }
+
+    @Override
+    public List<Film> getLikedFilmsByUser(long userId) {
+        String sql = """
+                SELECT films.*,
+                       fg.genre_id,
+                       g.genre_name,
+                       mpa.rating_name
+                FROM films
+                LEFT JOIN film_genres fg ON films.film_id = fg.film_id
+                LEFT JOIN genres g ON fg.genre_id = g.genre_id
+                LEFT JOIN mpa_rating mpa ON films.rating_id = mpa.rating_id
+                JOIN likes l ON films.film_id = l.film_id
+                WHERE l.user_id = ?
+                """;
+        return extractMany(sql, listExtractor, userId);
+    }
+
+    @Override
+    public int getLikesCount(long filmId) {
+        String sql = "SELECT COUNT(*) FROM likes WHERE film_id = ?";
+        return jdbc.queryForObject(sql, Integer.class, filmId);
+    }
+
+    public List<Film> getCommonLikedFilms(long userId, long friendId) {
+        String sql = """
+                        SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id,
+                               fg.genre_id, g.genre_name, mpa.rating_name,
+                               (SELECT COUNT(*) FROM likes l WHERE l.film_id = f.film_id) AS likes_count
+                        FROM films f
+                        LEFT JOIN film_genres fg ON f.film_id = fg.film_id
+                        LEFT JOIN genres g ON fg.genre_id = g.genre_id
+                        LEFT JOIN mpa_rating mpa ON f.rating_id = mpa.rating_id
+                        JOIN likes l1 ON f.film_id = l1.film_id AND l1.user_id = ?
+                        JOIN likes l2 ON f.film_id = l2.film_id AND l2.user_id = ?
+                        GROUP BY f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id,\s
+                                 fg.genre_id, g.genre_name, mpa.rating_name
+                        ORDER BY likes_count DESC
+                """;
+
+        return jdbc.query(sql, listExtractor, userId, friendId);
     }
 }

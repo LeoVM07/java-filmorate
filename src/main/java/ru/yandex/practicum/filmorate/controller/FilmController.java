@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -15,6 +17,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/films")
+@Validated
 public class FilmController {
 
     private final FilmService filmService;
@@ -65,6 +68,12 @@ public class FilmController {
                     required = false,
                     defaultValue = "10") int count) {
         return new ResponseEntity<>(filmService.showMostPopularFilms(count), HttpStatus.OK);
+    }
+
+    @GetMapping("/common")
+    public ResponseEntity<List<Film>> getCommonFilms(@RequestParam @Positive long userId,
+                                                     @RequestParam @Positive long friendId) {
+        return new ResponseEntity<>(filmService.getCommonLikedFilms(userId, friendId), HttpStatus.OK);
     }
 
 }

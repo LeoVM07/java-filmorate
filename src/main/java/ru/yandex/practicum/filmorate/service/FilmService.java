@@ -101,4 +101,12 @@ public class FilmService {
                 .orElseThrow(() -> new UserIdException(userId));
     }
 
+    public List<Film> getCommonLikedFilms(@Positive long userId, @Positive long friendId) {
+        checkUser(userId);
+        checkUser(friendId);
+        log.info("Запрошены общие фильмы пользователей {} и {}", userId, friendId);
+        return filmRepository.getCommonLikedFilms(userId, friendId);
+    }
+
+
 }
