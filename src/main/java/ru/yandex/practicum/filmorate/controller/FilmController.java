@@ -63,8 +63,17 @@ public class FilmController {
     public ResponseEntity<List<Film>> showMostPopular(
             @RequestParam(name = "count",
                     required = false,
-                    defaultValue = "10") int count) {
-        return new ResponseEntity<>(filmService.showMostPopularFilms(count), HttpStatus.OK);
+                    defaultValue = "10") int count,
+            @RequestParam(name = "genreId", required = false) Long genreId,
+            @RequestParam(name = "year", required = false) Integer year
+    ) {
+        return new ResponseEntity<>(filmService.showPopularFilmsByGenreYear(count, genreId, year), HttpStatus.OK);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public ResponseEntity<List<Film>> showFilmsByDirectorSorted(@PathVariable("directorId") long directorId,
+                                                                @RequestParam(name = "sortBy") String sortFilmsBy) {
+        return new ResponseEntity<>(filmService.showFilmsByDirectorSorted(directorId, sortFilmsBy), HttpStatus.OK);
     }
 
 }

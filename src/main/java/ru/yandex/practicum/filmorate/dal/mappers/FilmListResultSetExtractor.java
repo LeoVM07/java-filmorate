@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.dal.mappers;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -39,6 +40,13 @@ public class FilmListResultSetExtractor implements ResultSetExtractor<List<Film>
                 film.getGenres().add(new Genre(
                         rs.getLong("genre_id"),
                         rs.getString("genre_name")));
+            }
+
+            if (rs.getInt("director_id") != 0) {
+                Director director = new Director();
+                director.setId(rs.getLong("director_id"));
+                director.setName(rs.getString("director_name"));
+                film.getDirectors().add(director);
             }
         }
         return idToFilm.values().stream().toList();

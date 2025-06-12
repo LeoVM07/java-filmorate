@@ -7,6 +7,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.FilmListResultSetExtractor;
 import ru.yandex.practicum.filmorate.dal.mappers.FilmResultSetExtractor;
+import ru.yandex.practicum.filmorate.exception.InternalServerException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -25,22 +27,79 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
             SELECT films.*,
             fg.genre_id,
             g.genre_name,
-            mpa.rating_name
+            mpa.rating_name,
+            fd.director_id,
+            d.director_name
             FROM films
             LEFT JOIN film_genres fg ON films.film_id = fg.film_id
             LEFT JOIN genres g ON fg.genre_id = g.genre_id
-            LEFT JOIN mpa_rating mpa ON films.rating_id = mpa.rating_id;
+            LEFT JOIN mpa_rating mpa ON films.rating_id = mpa.rating_id
+            LEFT JOIN film_directors fd ON films.film_id = fd.film_id
+            LEFT JOIN directors d ON fd.director_id = d.director_id;
             """;
     private static final String SHOW_FILM_BY_ID_QUERY = """
             SELECT films.*,
             fg.genre_id,
             g.genre_name,
             mpa.rating_name,
+            fd.director_id,
+            d.director_name
             FROM films
             LEFT JOIN film_genres AS fg ON films.film_id = fg.film_id
             LEFT JOIN genres AS g ON fg.genre_id = g.genre_id
             LEFT JOIN mpa_rating AS mpa ON films.rating_id = mpa.rating_id
+            LEFT JOIN film_directors fd ON films.film_id = fd.film_id
+            LEFT JOIN directors d ON fd.director_id = d.director_id
             WHERE films.film_id = ?;
+            """;
+
+    private static final String SHOW_FILMS_BY_DIRECTOR_ID_SORT_BY_LIKES_QUERY = """
+            SELECT f.film_id,
+            f.name,
+            f.description,
+            f.release_date,
+            f.duration,
+            f.rating_id,
+            f.rating_id,
+            fg.genre_id,
+            g.genre_name,
+            mpa.rating_name,
+            fd.director_id,
+            d.director_name,
+            COUNT(l.user_id) AS like_count
+            FROM films f
+            LEFT JOIN film_genres AS fg ON f.film_id = fg.film_id
+            LEFT JOIN genres AS g ON fg.genre_id = g.genre_id
+            LEFT JOIN mpa_rating AS mpa ON f.rating_id = mpa.rating_id
+            LEFT JOIN film_directors fd ON f.film_id = fd.film_id
+            LEFT JOIN directors d ON fd.director_id = d.director_id
+            LEFT JOIN likes l ON f.film_id = l.film_id
+            WHERE d.director_id = ?
+            GROUP BY f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id,
+            fg.genre_id, g.genre_name, mpa.rating_name, fd.director_id, d.director_name
+            ORDER BY like_count DESC
+            """;
+
+    private static final String SHOW_FILMS_BY_DIRECTOR_ID_SORT_BY_YEAR_QUERY = """
+            SELECT f.film_id,
+            f.name,
+            f.description,
+            f.release_date,
+            f.duration,
+            f.rating_id,
+            fg.genre_id,
+            g.genre_name,
+            mpa.rating_name,
+            fd.director_id,
+            d.director_name
+            FROM films f
+            LEFT JOIN film_genres AS fg ON f.film_id = fg.film_id
+            LEFT JOIN genres AS g ON fg.genre_id = g.genre_id
+            LEFT JOIN mpa_rating AS mpa ON f.rating_id = mpa.rating_id
+            LEFT JOIN film_directors fd ON f.film_id = fd.film_id
+            LEFT JOIN directors d ON fd.director_id = d.director_id
+            WHERE d.director_id = ?
+            ORDER BY f.release_date ASC
             """;
 
     private static final String ADD_FILM_QUERY = """
@@ -63,21 +122,40 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
     private static final String DELETE_FILM_GENRE_QUERY = "DELETE film_genres WHERE film_id = ?";
     private static final String ADD_LIKE_TO_FILM_QUERY = "INSERT INTO likes(film_id, user_id) VALUES(?, ?);";
     private static final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE likes WHERE film_id = ? AND user_id = ?";
-    private static final String SHOW_MOST_POPULAR_FILM_QUERY = """
+    private static final String SHOW_POPULAR_FILMS_BY_GENRE_YEAR_QUERY = """
             SELECT films.*,
             fg.genre_id,
             g.genre_name,
-            mpa.rating_name
-            FROM (SELECT likes.film_id,
-             COUNT(likes.like_id) AS count_likes
-             FROM likes
-             GROUP BY film_id
-             ORDER BY COUNT(likes.like_id) DESC
-             LIMIT ?) as l
+            mpa.rating_name,
+            fd.director_id,
+            d.director_name
+            FROM (
+                SELECT likes.film_id, COUNT(likes.like_id) AS count_likes
+                FROM likes
+                LEFT JOIN films ON likes.film_id = films.film_id
+                LEFT JOIN film_genres fg ON likes.film_id = fg.film_id
+                LEFT JOIN film_directors fd ON likes.film_id = fd.film_id
+                LEFT JOIN directors d ON fd.director_id = d.director_id
+                WHERE (? IS NULL OR fg.genre_id = ?)
+                AND (? IS NULL OR EXTRACT(YEAR FROM films.release_date) = ?)
+                GROUP BY likes.film_id
+                ORDER BY COUNT(likes.like_id) DESC
+                LIMIT ?
+            ) AS l
             LEFT JOIN films ON l.film_id = films.film_id
             LEFT JOIN film_genres AS fg ON films.film_id = fg.film_id
             LEFT JOIN genres AS g ON fg.genre_id = g.genre_id
-            LEFT JOIN mpa_rating AS mpa ON films.rating_id = mpa.rating_id;
+            LEFT JOIN mpa_rating AS mpa ON films.rating_id = mpa.rating_id
+            LEFT JOIN film_directors fd ON films.film_id = fd.film_id
+            LEFT JOIN directors d ON fd.director_id = d.director_id
+            """;
+
+    private static final String DELETE_FILM_DIRECTORS_QUERY = """
+            DELETE film_directors WHERE film_id = ?
+            """;
+
+    private static final String ADD_FILM_DIRECTOR_QUERY = """
+            INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)
             """;
 
     @Autowired
@@ -116,12 +194,18 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
             } catch (DuplicateKeyException ignored) {
             }
         }
+
+        for (Director director : film.getDirectors()) {
+            insert(ADD_FILM_DIRECTOR_QUERY, film.getId(), director.getId());
+        }
+
         return film;
     }
 
     @Override
     public Film updateFilm(Film film) {
         delete(DELETE_FILM_GENRE_QUERY, film.getId());
+        delete(DELETE_FILM_DIRECTORS_QUERY, film.getId());
         update(
                 UPDATE_FILM_QUERY,
                 film.getName(),
@@ -137,6 +221,11 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
             } catch (DuplicateKeyException ignored) {
             }
         }
+
+        for (Director director : film.getDirectors()) {
+            insert(ADD_FILM_DIRECTOR_QUERY, film.getId(), director.getId());
+        }
+
         return film;
     }
 
@@ -151,7 +240,22 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
     }
 
     @Override
-    public List<Film> showMostPopularFilms(int count) {
-        return extractMany(SHOW_MOST_POPULAR_FILM_QUERY, listExtractor, count);
+    public List<Film> showPopularFilmsByGenreYear(int count, Long genreId, Integer year) {
+        return extractMany(SHOW_POPULAR_FILMS_BY_GENRE_YEAR_QUERY, listExtractor, genreId, genreId, year, year, count);
     }
+
+    @Override
+    public List<Film> showFilmsByDirector(long directorId, String sortFilmsBy) {
+        switch (sortFilmsBy) {
+            case "year" -> {
+                return extractMany(SHOW_FILMS_BY_DIRECTOR_ID_SORT_BY_YEAR_QUERY, listExtractor, directorId);
+            }
+            case "likes" -> {
+                return extractMany(SHOW_FILMS_BY_DIRECTOR_ID_SORT_BY_LIKES_QUERY, listExtractor, directorId);
+            }
+            default -> throw new InternalServerException();
+        }
+    }
+
+
 }
