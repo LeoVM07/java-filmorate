@@ -45,7 +45,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{filmId}")
-    public ResponseEntity<Map<String,String>> deleteFilm(@PathVariable("filmId") long filmId) {
+    public ResponseEntity<Map<String, String>> deleteFilm(@PathVariable("filmId") long filmId) {
         return new ResponseEntity<>(filmService.deleteFilm(filmId), HttpStatus.OK);
     }
 
@@ -69,7 +69,7 @@ public class FilmController {
             @RequestParam(name = "genreId", required = false) Long genreId,
             @RequestParam(name = "year", required = false) Integer year
     ) {
-        return new ResponseEntity<>(filmService.getPopularFilmsByGenreYear(count, genreId, year), HttpStatus.OK);
+        return new ResponseEntity<>(filmService.showPopularFilmsByGenreYear(count, genreId, year), HttpStatus.OK);
     }
 
     @GetMapping("/director/{directorId}")

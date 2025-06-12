@@ -123,7 +123,7 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
     private static final String DELETE_FILM_GENRE_QUERY = "DELETE film_genres WHERE film_id = ?";
     private static final String ADD_LIKE_TO_FILM_QUERY = "INSERT INTO likes(film_id, user_id) VALUES(?, ?);";
     private static final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE likes WHERE film_id = ? AND user_id = ?";
-    private static final String GET_POPULAR_FILMS_BY_GENRE_YEAR_QUERY = """
+    private static final String SHOW_POPULAR_FILMS_BY_GENRE_YEAR_QUERY = """
             SELECT films.*,
             fg.genre_id,
             g.genre_name,
@@ -246,8 +246,8 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
     }
 
     @Override
-    public List<Film> getPopularFilmsByGenreYear(int count, Long genreId, Integer year) {
-        return extractMany(GET_POPULAR_FILMS_BY_GENRE_YEAR_QUERY, listExtractor, genreId, genreId, year, year, count);
+    public List<Film> showPopularFilmsByGenreYear(int count, Long genreId, Integer year) {
+        return extractMany(SHOW_POPULAR_FILMS_BY_GENRE_YEAR_QUERY, listExtractor, genreId, genreId, year, year, count);
     }
 
     @Override
