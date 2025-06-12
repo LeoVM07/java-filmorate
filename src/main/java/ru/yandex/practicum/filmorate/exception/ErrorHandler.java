@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.exception;
 
+import jakarta.validation.ValidationException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -44,6 +45,27 @@ public class ErrorHandler {
     public ErrorResponse handleGenreIdException(final GenreIdException e) {
         log.error(e.getMessage());
         return new ErrorResponse("Ошибка в указанном id жанра", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleReviewNotFoundException(final ReviewNotFoundException e) {
+        log.error("Review error: {}", e.getMessage());
+        return new ErrorResponse("Ошибка отзыва", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleDuplicateReviewLikeException(final DuplicateReviewLikeException e) {
+        log.error("Duplicate review like: {}", e.getMessage());
+        return new ErrorResponse("Ошибка оценки отзыва", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(final ValidationException e) {
+        log.error("Validation error: {}", e.getMessage());
+        return new ErrorResponse("Ошибка валидации", e.getMessage());
     }
 
     @ExceptionHandler
