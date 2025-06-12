@@ -111,21 +111,31 @@ public class ReviewRepository extends BaseRepository<Review> implements ReviewSt
 
     @Override
     public void addLikeToReview(Long reviewId, Long userId) {
+        Boolean existing = getLikeStatus(reviewId, userId);
+
+        if (existing != null) {
+            if (existing) return;
+            removeLikeOrDislike(reviewId, userId); // useful +1
+        }
         try {
-            updateReviewUseful(reviewId, 1);
             insert(ADD_LIKE_QUERY, reviewId, userId);
+            updateReviewUseful(reviewId, 1);
         } catch (DuplicateKeyException ignored) {
-            // Пользователь уже ставил оценку
         }
     }
 
     @Override
     public void addDislikeToReview(Long reviewId, Long userId) {
+        Boolean existing = getLikeStatus(reviewId, userId);
+
+        if (existing != null) {
+            if (!existing) return;
+            removeLikeOrDislike(reviewId, userId);
+        }
         try {
-            updateReviewUseful(reviewId, -1);
             insert(ADD_DISLIKE_QUERY, reviewId, userId);
+            updateReviewUseful(reviewId, -1);
         } catch (DuplicateKeyException ignored) {
-            // Пользователь уже ставил оценку
         }
     }
 
@@ -148,4 +158,13 @@ public class ReviewRepository extends BaseRepository<Review> implements ReviewSt
     private void updateReviewUseful(Long reviewId, int delta) {
         update(UPDATE_USEFUL_QUERY, delta, reviewId);
     }
+
+    private Boolean getLikeStatus(Long reviewId, Long userId) {
+        try {
+            return jdbc.queryForObject(GET_LIKE_STATUS_QUERY, Boolean.class, reviewId, userId);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }
