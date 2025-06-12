@@ -124,31 +124,26 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
     private static final String ADD_LIKE_TO_FILM_QUERY = "INSERT INTO likes(film_id, user_id) VALUES(?, ?);";
     private static final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE likes WHERE film_id = ? AND user_id = ?";
     private static final String SHOW_POPULAR_FILMS_BY_GENRE_YEAR_QUERY = """
-            SELECT films.*,
+            SELECT f.*,
+            mpa.rating_id,
+            mpa.rating_name,
             fg.genre_id,
             g.genre_name,
-            mpa.rating_name,
+            COUNT (l.like_id),
             fd.director_id,
             d.director_name
-            FROM (
-                SELECT likes.film_id, COUNT(likes.like_id) AS count_likes
-                FROM likes
-                LEFT JOIN films ON likes.film_id = films.film_id
-                LEFT JOIN film_genres fg ON likes.film_id = fg.film_id
-                LEFT JOIN film_directors fd ON likes.film_id = fd.film_id
-                LEFT JOIN directors d ON fd.director_id = d.director_id
-                WHERE (? IS NULL OR fg.genre_id = ?)
-                AND (? IS NULL OR EXTRACT(YEAR FROM films.release_date) = ?)
-                GROUP BY likes.film_id
-                ORDER BY COUNT(likes.like_id) DESC
-                LIMIT ?
-            ) AS l
-            LEFT JOIN films ON l.film_id = films.film_id
-            LEFT JOIN film_genres AS fg ON films.film_id = fg.film_id
+            FROM films f
+            LEFT JOIN film_genres AS fg ON f.film_id = fg.film_id
             LEFT JOIN genres AS g ON fg.genre_id = g.genre_id
-            LEFT JOIN mpa_rating AS mpa ON films.rating_id = mpa.rating_id
-            LEFT JOIN film_directors fd ON films.film_id = fd.film_id
+            LEFT JOIN mpa_rating AS mpa ON f.rating_id = mpa.rating_id
+            LEFT JOIN film_directors fd ON f.film_id = fd.film_id
             LEFT JOIN directors d ON fd.director_id = d.director_id
+            LEFT JOIN likes as l ON f.film_id = l.film_id
+            WHERE (? IS NULL OR fg.genre_id = ?)
+            AND (? IS NULL OR EXTRACT(YEAR FROM f.release_date) = ?)
+            GROUP BY f.film_id, fg.genre_id
+            ORDER BY COUNT(l.like_id) DESC, f.film_id DESC
+            LIMIT ?;
             """;
 
     private static final String DELETE_FILM_DIRECTORS_QUERY = """
