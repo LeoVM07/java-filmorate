@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -113,6 +114,13 @@ public class FilmService {
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new UserIdException(userId));
+    }
+
+    public List<Film> getCommonLikedFilms(@Positive long userId, @Positive long friendId) {
+        checkUser(userId);
+        checkUser(friendId);
+        log.info("Запрошены общие фильмы пользователей {} и {}", userId, friendId);
+        return filmRepository.getCommonLikedFilms(userId, friendId);
     }
 
 }
