@@ -46,10 +46,11 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
+        checkFilm(film.getId());
         checkMpa(film.getMpa().getId());
         checkGenre(film.getGenres());
-        checkFilm(film.getId());
-        return filmRepository.updateFilm(film);
+        filmRepository.updateFilm(film);
+        return checkFilm(film.getId());
     }
 
     public Map<String, String> deleteFilm(long filmId) {
