@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -8,11 +7,7 @@ import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.dal.GenreRepository;
 import ru.yandex.practicum.filmorate.dal.MpaRepository;
 import ru.yandex.practicum.filmorate.dal.UserRepository;
-import ru.yandex.practicum.filmorate.exception.DirectorIdException;
-import ru.yandex.practicum.filmorate.exception.FilmIdException;
-import ru.yandex.practicum.filmorate.exception.GenreIdException;
-import ru.yandex.practicum.filmorate.exception.MpaIdException;
-import ru.yandex.practicum.filmorate.exception.UserIdException;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -68,9 +63,19 @@ public class FilmService {
         return Map.of("result", String.format("like was removed from film with id %d", filmId));
     }
 
-    public List<Film> showMostPopularFilms(@Positive int count) {
-        log.trace("Выведен список самых понравившихся фильмов");
-        return filmRepository.showMostPopularFilms(count);
+    public List<Film> getPopularFilmsByGenreYear(int count, Long genreId, Integer year) {
+        if (count <= 0) {
+            throw new CountException("Параметр count должен быть положительным числом");
+        }
+
+        if (genreId != null) {
+            genreRepository.showGenreById(genreId)
+                    .orElseThrow(() -> new GenreIdException(genreId));
+        }
+
+        log.trace("Выведен список популярных фильмов. count={}, genreId={}, year={}",
+                count, genreId, year);
+        return filmRepository.getPopularFilmsByGenreYear(count, genreId, year);
     }
 
     public List<Film> showFilmsByDirectorSorted(long directorId, String sortFilmsBy) {
