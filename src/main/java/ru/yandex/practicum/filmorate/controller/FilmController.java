@@ -78,4 +78,10 @@ public class FilmController {
         return new ResponseEntity<>(filmService.showFilmsByDirectorSorted(directorId, sortFilmsBy), HttpStatus.OK);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Film>> searchFilms(@RequestParam(name = "query") String query,
+                                                  @RequestParam(name = "by") String[] by) {
+        return new ResponseEntity<>(filmService.searchFilms(query, by), HttpStatus.OK);
+    }
+
 }

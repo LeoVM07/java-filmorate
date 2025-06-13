@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.dal.GenreRepository;
 import ru.yandex.practicum.filmorate.dal.MpaRepository;
 import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.enums.SearchCriteria;
 import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -93,6 +94,23 @@ public class FilmService {
             throw new DirectorIdException(directorId);
         }
         return filmsByDirector;
+    }
+
+    public List<Film> searchFilms(String query, String[] by) {
+        List<SearchCriteria> searchCriteria = checkSearchCriteria(by);
+        return filmRepository.searchFilms(query, searchCriteria);
+    }
+
+    private List<SearchCriteria> checkSearchCriteria(String[] by) {
+        List<SearchCriteria> searchCriteria = new ArrayList<>(by.length);
+        for (String criteria : by) {
+            searchCriteria.add(SearchCriteria.fromString(criteria));
+        }
+
+        if (searchCriteria.isEmpty() || searchCriteria.size() > 2) {
+            throw new SearchCriteriaException("Некорректные критерии поиска");
+        }
+        return searchCriteria;
     }
 
     private Film checkFilm(long filmId) {

@@ -97,6 +97,20 @@ public class ErrorHandler {
         return new ErrorResponse("Ошибка в параметре запроса", e.getMessage());
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleCountException(final SearchCriteriaException e) {
+        log.error("Ошибка параметра by: {}", e.getMessage());
+        return new ErrorResponse("Ошибка в параметре запроса", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleCountException(final SearchFailException e) {
+        log.error("Ошибка при поиске фильмов");
+        return new ErrorResponse("Ошибка при поиске фильмов", e.getMessage());
+    }
+
     @Getter
     public static class ErrorResponse {
         private final String error;
