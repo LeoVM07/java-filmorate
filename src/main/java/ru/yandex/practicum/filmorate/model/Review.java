@@ -8,7 +8,7 @@ import lombok.Data;
 public class Review {
     private Long reviewId;
     @NotBlank(message = "Текст отзыва не может быть пустым")
-    String content;
+    private String content;
     @NotNull(message = "Тип отзыва (положительный/отрицательный) должен быть указан")
     private Boolean isPositive;
     @NotNull(message = "ID пользователя не может быть null")

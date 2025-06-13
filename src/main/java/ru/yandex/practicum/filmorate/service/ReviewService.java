@@ -22,7 +22,6 @@ public class ReviewService {
     private final FilmStorage filmStorage;
 
     public Review addReview(Review review) {
-        validateReview(review);
         checkUserAndFilm(review.getUserId(), review.getFilmId());
 
         Review createdReview = reviewStorage.addReview(review);
@@ -31,7 +30,6 @@ public class ReviewService {
     }
 
     public Review updateReview(Review review) {
-        validateReview(review);
         checkReviewExists(review.getReviewId());
 
         Review updatedReview = reviewStorage.updateReview(review);
@@ -94,19 +92,6 @@ public class ReviewService {
         checkReviewAndUser(reviewId, userId);
         reviewStorage.removeLikeOrDislike(reviewId, userId);
         log.info("Пользователь ID: {} удалил оценку отзыва ID: {}", userId, reviewId);
-    }
-
-    private void validateReview(Review review) {
-        if (review.getContent() == null || review.getContent().isBlank()) {
-            throw new ReviewValidationException("Текст отзыва не может быть пустым");
-        }
-        if (review.getContent().length() > 2000) {
-            throw new ReviewValidationException("Максимальная длина отзыва - 2000 символов");
-        }
-        if (review.getIsPositive() == null) {
-            throw new ReviewValidationException("Тип отзыва (положительный/отрицательный) должен быть указан");
-        }
-
     }
 
     private void checkReviewExists(Long reviewId) {
