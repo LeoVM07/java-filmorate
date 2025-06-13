@@ -18,6 +18,7 @@ public class UserRepository extends BaseRepository<User> implements UserStorage 
             "VALUES(?, ?, ?, ?)";
     private static final String UPDATE_USER_QUERY = "UPDATE users SET email = ?, login = ?, name = ?, " +
             "birthday = ? WHERE user_id = ?";
+    private static final String DELETE_USER_QUERY = "DELETE users WHERE user_id = ?";
     private static final String ADD_FRIEND_TO_USER_QUERY = "INSERT INTO friendship (user_id, friend_id) VALUES(?, ?)";
     private static final String DELETE_FRIEND_FROM_USER_QUERY =
             "DELETE friendship WHERE user_id = ? AND friend_id =?";
@@ -77,6 +78,11 @@ public class UserRepository extends BaseRepository<User> implements UserStorage 
         );
 
         return user;
+    }
+
+    @Override
+    public void deleteUser(long userId) {
+        delete(DELETE_USER_QUERY, userId);
     }
 
     @Override
