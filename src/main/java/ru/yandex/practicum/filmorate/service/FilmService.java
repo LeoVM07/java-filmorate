@@ -63,7 +63,7 @@ public class FilmService {
         return Map.of("result", String.format("like was removed from film with id %d", filmId));
     }
 
-    public List<Film> getPopularFilmsByGenreYear(int count, Long genreId, Integer year) {
+    public List<Film> showPopularFilmsByGenreYear(int count, Long genreId, Integer year) {
         if (count <= 0) {
             throw new CountException("Параметр count должен быть положительным числом");
         }
@@ -75,7 +75,7 @@ public class FilmService {
 
         log.trace("Выведен список популярных фильмов. count={}, genreId={}, year={}",
                 count, genreId, year);
-        return filmRepository.getPopularFilmsByGenreYear(count, genreId, year);
+        return filmRepository.showPopularFilmsByGenreYear(count, genreId, year);
     }
 
     public List<Film> showFilmsByDirectorSorted(long directorId, String sortFilmsBy) {
