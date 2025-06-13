@@ -4,15 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dal.FilmRepository;
-import ru.yandex.practicum.filmorate.dal.GenreRepository;
-import ru.yandex.practicum.filmorate.dal.MpaRepository;
-import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.dal.*;
+import ru.yandex.practicum.filmorate.enums.EventType;
+import ru.yandex.practicum.filmorate.enums.Operation;
 import ru.yandex.practicum.filmorate.exception.*;
+import ru.yandex.practicum.filmorate.model.FeedRecord;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.*;
 
 @Slf4j
@@ -23,6 +25,7 @@ public class FilmService {
     private final MpaRepository mpaRepository;
     private final GenreRepository genreRepository;
     private final UserRepository userRepository;
+    private final FeedRecordRepository feedRepository;
 
     public List<Film> showAllFilms() {
         return filmRepository.showAllFilms();
@@ -59,6 +62,12 @@ public class FilmService {
         checkFilm(filmId);
         checkUser(userId);
         filmRepository.addLikeToFilm(filmId, userId);
+        feedRepository.addFeedRecord(new FeedRecord(
+                Timestamp.from(Instant.now()).getTime(),
+                userId,
+                EventType.LIKE,
+                Operation.ADD,
+                filmId));
         log.info("Фильму с id:{} был добавлен лайк от пользователя с id:{}", filmId, userId);
         return Map.of("result", String.format("like was added to film with id %d", filmId));
 
@@ -68,6 +77,12 @@ public class FilmService {
         checkFilm(filmId);
         checkUser(userId);
         filmRepository.deleteLikeFromFilm(filmId, userId);
+        feedRepository.addFeedRecord(new FeedRecord(
+                Timestamp.from(Instant.now()).getTime(),
+                userId,
+                EventType.LIKE,
+                Operation.REMOVE,
+                filmId));
         log.info("У фильму с id:{} был удалён лайк от пользователя с id:{}", filmId, userId);
         return Map.of("result", String.format("like was removed from film with id %d", filmId));
     }

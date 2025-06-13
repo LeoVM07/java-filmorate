@@ -5,12 +5,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.enums.EventType;
+import ru.yandex.practicum.filmorate.enums.Operation;
 import ru.yandex.practicum.filmorate.exception.*;
+import ru.yandex.practicum.filmorate.model.FeedRecord;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.FeedRecordStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -20,11 +26,17 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
+    private final FeedRecordStorage feedStorage;
 
     public Review addReview(Review review) {
         checkUserAndFilm(review.getUserId(), review.getFilmId());
-
         Review createdReview = reviewStorage.addReview(review);
+        feedStorage.addFeedRecord(new FeedRecord(
+                Timestamp.from(Instant.now()).getTime(),
+                review.getUserId(),
+                EventType.REVIEW,
+                Operation.ADD,
+                review.getReviewId()));
         log.info("Добавлен новый отзыв ID: {}", createdReview.getReviewId());
         return createdReview;
     }
@@ -33,13 +45,26 @@ public class ReviewService {
         checkReviewExists(review.getReviewId());
 
         Review updatedReview = reviewStorage.updateReview(review);
+        feedStorage.addFeedRecord(new FeedRecord(
+                Timestamp.from(Instant.now()).getTime(),
+                review.getUserId(),
+                EventType.REVIEW,
+                Operation.UPDATE,
+                review.getReviewId()));
         log.info("Обновлен отзыв ID: {}", updatedReview.getReviewId());
         return updatedReview;
     }
 
     public void deleteReview(Long reviewId) {
         checkReviewExists(reviewId);
+        Review review = showReviewById(reviewId);
         reviewStorage.deleteReview(reviewId);
+        feedStorage.addFeedRecord(new FeedRecord(
+                Timestamp.from(Instant.now()).getTime(),
+                review.getUserId(),
+                EventType.REVIEW,
+                Operation.REMOVE,
+                reviewId));
         log.info("Удален отзыв ID: {}", reviewId);
     }
 
