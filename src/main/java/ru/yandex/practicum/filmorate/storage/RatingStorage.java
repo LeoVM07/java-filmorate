@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface RatingStorage {
 
-    public List<Mpa> showALlRatings();
+    List<Mpa> showALlRatings();
 
-    public Optional<Mpa> showRatingById(long ratingId);
+    Optional<Mpa> showRatingById(long ratingId);
 }
