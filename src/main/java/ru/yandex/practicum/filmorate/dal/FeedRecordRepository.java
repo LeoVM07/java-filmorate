@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 @Repository
-public class FeedRecordRepository extends BaseRepository<FeedRecord> implements FeedRecordStorage{
+public class FeedRecordRepository extends BaseRepository<FeedRecord> implements FeedRecordStorage {
 
     private static final String ADD_FEED_QUERY = """
             INSERT INTO feed (feed_timestamp, user_id, event_type, operation, entity_id)
