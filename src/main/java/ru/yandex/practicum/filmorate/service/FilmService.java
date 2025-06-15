@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -144,6 +145,13 @@ public class FilmService {
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new UserIdException(userId));
+    }
+
+    public List<Film> showCommonLikedFilms(@Positive long userId, @Positive long friendId) {
+        checkUser(userId);
+        checkUser(friendId);
+        log.info("Запрошены общие фильмы пользователей {} и {}", userId, friendId);
+        return filmRepository.showCommonLikedFilms(userId, friendId);
     }
 
 }
