@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
@@ -76,6 +77,12 @@ public class FilmController {
     public ResponseEntity<List<Film>> showFilmsByDirectorSorted(@PathVariable("directorId") long directorId,
                                                                 @RequestParam(name = "sortBy") String sortFilmsBy) {
         return new ResponseEntity<>(filmService.showFilmsByDirectorSorted(directorId, sortFilmsBy), HttpStatus.OK);
+    }
+
+    @GetMapping("/common")
+    public ResponseEntity<List<Film>> showCommonFilms(@RequestParam @Positive long userId,
+                                                      @RequestParam @Positive long friendId) {
+        return new ResponseEntity<>(filmService.showCommonLikedFilms(userId, friendId), HttpStatus.OK);
     }
 
 }
