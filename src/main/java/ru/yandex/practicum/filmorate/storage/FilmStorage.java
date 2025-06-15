@@ -15,13 +15,13 @@ public interface FilmStorage {
 
     Film updateFilm(Film film);
 
-    void deleteFilm(long filmID); // ← добавлено из develop
+    void deleteFilm(long filmID);
 
-    void addLikeToFilm(long filmId, long userId); // ← объединено
+    void addLikeToFilm(long filmId, long userId);
 
     void deleteLikeFromFilm(long filmId, long userId);
 
-    List<Film> showPopularFilmsByGenreYear(int count, Long genreId, Integer year); // ← формат из develop
+    List<Film> showPopularFilmsByGenreYear(int count, Long genreId, Integer year);
 
     List<Film> showFilmsByDirector(long directorId, String sortFilmsBy);
 
@@ -31,4 +31,5 @@ public interface FilmStorage {
 
     int countLikesByFilmId(long filmId);
 
+    List<Film> showRecommendedFilms(long userId);
 }
