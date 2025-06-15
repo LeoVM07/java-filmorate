@@ -16,9 +16,9 @@ public interface FilmStorage {
 
     Film updateFilm(Film film);
 
-    void deleteFilm(long filmID); // ← добавлено из develop
+    void deleteFilm(long filmID);
 
-    void addLikeToFilm(long filmId, long userId); // ← объединено
+    void addLikeToFilm(long filmId, long userId);
 
     void deleteLikeFromFilm(long filmId, long userId);
 
