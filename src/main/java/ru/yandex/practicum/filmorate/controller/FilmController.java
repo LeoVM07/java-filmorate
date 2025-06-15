@@ -79,7 +79,7 @@ public class FilmController {
 
     @GetMapping("/common")
     public ResponseEntity<List<Film>> showCommonFilms(@RequestParam @Positive long userId,
-                                                     @RequestParam @Positive long friendId) {
+                                                      @RequestParam @Positive long friendId) {
         return new ResponseEntity<>(filmService.showCommonLikedFilms(userId, friendId), HttpStatus.OK);
     }
 

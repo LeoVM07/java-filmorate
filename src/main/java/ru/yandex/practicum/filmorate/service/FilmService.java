@@ -80,7 +80,7 @@ public class FilmService {
     }
 
     public List<Film> showFilmsByDirectorSorted(long directorId, String sortFilmsBy) {
-        List<Film> filmsByDirector =  filmRepository.showFilmsByDirector(directorId, sortFilmsBy);
+        List<Film> filmsByDirector = filmRepository.showFilmsByDirector(directorId, sortFilmsBy);
         if (filmsByDirector.isEmpty()) {
             throw new DirectorIdException(directorId);
         }
