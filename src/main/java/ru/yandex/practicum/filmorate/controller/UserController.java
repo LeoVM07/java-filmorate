@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.FeedRecord;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -72,6 +73,11 @@ public class UserController {
     public ResponseEntity<List<User>> getCommonFriends(@PathVariable("userId") int userId,
                                                        @PathVariable("friendId") int friendId) {
         return new ResponseEntity<>(userService.getCommonFriends(userId, friendId), HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}/feed")
+    public ResponseEntity<List<FeedRecord>> getFeedByUserId(@PathVariable("userId") int userId) {
+        return new ResponseEntity<>(userService.showFeedByUserId(userId), HttpStatus.OK);
     }
 
 }
