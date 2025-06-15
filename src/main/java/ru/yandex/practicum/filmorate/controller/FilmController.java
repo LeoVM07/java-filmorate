@@ -68,7 +68,7 @@ public class FilmController {
             @RequestParam(name = "genreId", required = false) Long genreId,
             @RequestParam(name = "year", required = false) Integer year
     ) {
-        return new ResponseEntity<>(filmService.getPopularFilmsByGenreYear(count, genreId, year), HttpStatus.OK);
+        return new ResponseEntity<>(filmService.showPopularFilmsByGenreYear(count, genreId, year), HttpStatus.OK);
     }
 
     @GetMapping("/director/{directorId}")
@@ -78,9 +78,9 @@ public class FilmController {
     }
 
     @GetMapping("/common")
-    public ResponseEntity<List<Film>> getCommonFilms(@RequestParam @Positive long userId,
+    public ResponseEntity<List<Film>> showCommonFilms(@RequestParam @Positive long userId,
                                                      @RequestParam @Positive long friendId) {
-        return new ResponseEntity<>(filmService.getCommonLikedFilms(userId, friendId), HttpStatus.OK);
+        return new ResponseEntity<>(filmService.showCommonLikedFilms(userId, friendId), HttpStatus.OK);
     }
 
 }

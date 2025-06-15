@@ -7,26 +7,26 @@ import java.util.Optional;
 
 public interface FilmStorage {
 
-    public List<Film> showAllFilms();
+    List<Film> showAllFilms();
 
-    public Optional<Film> showFilm(long filmId);
+    Optional<Film> showFilm(long filmId);
 
-    public Film addFilm(Film film);
+    Film addFilm(Film film);
 
-    public Film updateFilm(Film film);
+    Film updateFilm(Film film);
 
-    public void addLikeToFilm(long filmId, long userId);
+    void addLikeToFilm(long filmId, long userId);
 
-    public void deleteLikeFromFilm(long filmId, long userId);
+    void deleteLikeFromFilm(long filmId, long userId);
 
-    public List<Film> getPopularFilmsByGenreYear(int count, Long genreId,Integer year);
+    List<Film> showPopularFilmsByGenreYear(int count, Long genreId,Integer year);
 
     List<Film> showFilmsByDirector(long directorId, String sortFilmsBy);
 
-    public List<Film> getLikedFilmsByUser(long userId);
+    List<Film> showLikedFilmsByUser(long userId);
 
-    public List<Film> getCommonLikedFilms(long userId, long friendId);
+    List<Film> showCommonLikedFilms(long userId, long friendId);
 
-    public int getLikesCount(long filmId);
+    int countLikesByFilmId(long filmId);
 
 }
