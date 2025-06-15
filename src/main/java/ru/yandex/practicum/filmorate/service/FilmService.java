@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.dal.GenreRepository;
@@ -41,10 +42,18 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
+        checkFilm(film.getId());
         checkMpa(film.getMpa().getId());
         checkGenre(film.getGenres());
         filmRepository.updateFilm(film);
         return checkFilm(film.getId());
+    }
+
+    public Map<String, String> deleteFilm(long filmId) {
+        checkFilm(filmId);
+        filmRepository.deleteFilm(filmId);
+        log.info("Фильм с id {} был удалён из базы данных", filmId);
+        return Map.of("result", String.format("fim with id %d was deleted", filmId));
     }
 
     public Map<String, String> addLikeToFilm(long filmId, long userId) {
@@ -80,7 +89,7 @@ public class FilmService {
     }
 
     public List<Film> showFilmsByDirectorSorted(long directorId, String sortFilmsBy) {
-        List<Film> filmsByDirector =  filmRepository.showFilmsByDirector(directorId, sortFilmsBy);
+        List<Film> filmsByDirector = filmRepository.showFilmsByDirector(directorId, sortFilmsBy);
         if (filmsByDirector.isEmpty()) {
             throw new DirectorIdException(directorId);
         }
@@ -88,10 +97,14 @@ public class FilmService {
     }
 
     private Film checkFilm(long filmId) {
-        return filmRepository.showFilm(filmId)
-                .stream()
-                .findAny()
-                .orElseThrow(() -> new FilmIdException(filmId));
+        try {
+            return filmRepository.showFilm(filmId)
+                    .stream()
+                    .findAny()
+                    .orElseThrow(() -> new FilmIdException(filmId));
+        } catch (DataIntegrityViolationException e) {
+            throw new FilmIdException(filmId);
+        }
     }
 
     private void checkGenre(Set<Genre> genreSet) {

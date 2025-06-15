@@ -1,10 +1,3 @@
-package ru.yandex.practicum.filmorate.storage;
-
-import ru.yandex.practicum.filmorate.model.Film;
-
-import java.util.List;
-import java.util.Optional;
-
 public interface FilmStorage {
 
     List<Film> showAllFilms();
@@ -15,11 +8,13 @@ public interface FilmStorage {
 
     Film updateFilm(Film film);
 
-    void addLikeToFilm(long filmId, long userId);
+    void deleteFilm(long filmID); // ← добавлено из develop
+
+    void addLikeToFilm(long filmId, long userId); // ← объединено
 
     void deleteLikeFromFilm(long filmId, long userId);
 
-    List<Film> showPopularFilmsByGenreYear(int count, Long genreId,Integer year);
+    List<Film> showPopularFilmsByGenreYear(int count, Long genreId, Integer year); // ← формат из develop
 
     List<Film> showFilmsByDirector(long directorId, String sortFilmsBy);
 
@@ -28,5 +23,4 @@ public interface FilmStorage {
     List<Film> showCommonLikedFilms(long userId, long friendId);
 
     int countLikesByFilmId(long filmId);
-
 }

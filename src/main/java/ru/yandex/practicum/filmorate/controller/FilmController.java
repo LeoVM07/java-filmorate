@@ -26,7 +26,6 @@ public class FilmController {
 
     @GetMapping
     public ResponseEntity<List<Film>> showAllFilms() {
-        log.trace("Выведен список фильмов");
         return new ResponseEntity<>(filmService.showAllFilms(), HttpStatus.OK);
     }
 
@@ -37,15 +36,18 @@ public class FilmController {
 
     @PostMapping
     public ResponseEntity<Film> addFilm(@RequestBody @Valid Film film) {
-        log.info("Добавлен новый фильм под названием: {}, id: {}", film.getName(), film.getId());
         return new ResponseEntity<>(filmService.addFilm(film), HttpStatus.OK);
 
     }
 
     @PutMapping
     public ResponseEntity<Film> updateFilm(@RequestBody @Valid Film film) {
-        log.info("Обновлён фильм под названием: {}, id: {}", film.getName(), film.getId());
         return new ResponseEntity<>(filmService.updateFilm(film), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{filmId}")
+    public ResponseEntity<Map<String, String>> deleteFilm(@PathVariable("filmId") long filmId) {
+        return new ResponseEntity<>(filmService.deleteFilm(filmId), HttpStatus.OK);
     }
 
     @PutMapping("/{filmId}/like/{userId}")

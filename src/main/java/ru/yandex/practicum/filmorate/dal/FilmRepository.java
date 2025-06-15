@@ -118,36 +118,32 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
             rating_id = ?
             WHERE film_id = ?;
             """;
+    private static final String DELETE_FILM_QUERY = "DELETE films WHERE film_id = ?";
     private static final String ADD_FILM_GENRE_QUERY = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
     private static final String DELETE_FILM_GENRE_QUERY = "DELETE film_genres WHERE film_id = ?";
     private static final String ADD_LIKE_TO_FILM_QUERY = "INSERT INTO likes(film_id, user_id) VALUES(?, ?);";
     private static final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE likes WHERE film_id = ? AND user_id = ?";
-    private static final String GET_POPULAR_FILMS_BY_GENRE_YEAR_QUERY = """
-            SELECT films.*,
+    private static final String SHOW_POPULAR_FILMS_BY_GENRE_YEAR_QUERY = """
+            SELECT f.*,
+            mpa.rating_id,
+            mpa.rating_name,
             fg.genre_id,
             g.genre_name,
-            mpa.rating_name,
+            COUNT (l.like_id),
             fd.director_id,
             d.director_name
-            FROM (
-                SELECT likes.film_id, COUNT(likes.like_id) AS count_likes
-                FROM likes
-                LEFT JOIN films ON likes.film_id = films.film_id
-                LEFT JOIN film_genres fg ON likes.film_id = fg.film_id
-                LEFT JOIN film_directors fd ON likes.film_id = fd.film_id
-                LEFT JOIN directors d ON fd.director_id = d.director_id
-                WHERE (? IS NULL OR fg.genre_id = ?)
-                AND (? IS NULL OR EXTRACT(YEAR FROM films.release_date) = ?)
-                GROUP BY likes.film_id
-                ORDER BY COUNT(likes.like_id) DESC
-                LIMIT ?
-            ) AS l
-            LEFT JOIN films ON l.film_id = films.film_id
-            LEFT JOIN film_genres AS fg ON films.film_id = fg.film_id
+            FROM films f
+            LEFT JOIN film_genres AS fg ON f.film_id = fg.film_id
             LEFT JOIN genres AS g ON fg.genre_id = g.genre_id
-            LEFT JOIN mpa_rating AS mpa ON films.rating_id = mpa.rating_id
-            LEFT JOIN film_directors fd ON films.film_id = fd.film_id
+            LEFT JOIN mpa_rating AS mpa ON f.rating_id = mpa.rating_id
+            LEFT JOIN film_directors fd ON f.film_id = fd.film_id
             LEFT JOIN directors d ON fd.director_id = d.director_id
+            LEFT JOIN likes as l ON f.film_id = l.film_id
+            WHERE (? IS NULL OR fg.genre_id = ?)
+            AND (? IS NULL OR EXTRACT(YEAR FROM f.release_date) = ?)
+            GROUP BY f.film_id, fg.genre_id
+            ORDER BY COUNT(l.like_id) DESC, f.film_id DESC
+            LIMIT ?;
             """;
 
     private static final String DELETE_FILM_DIRECTORS_QUERY = """
@@ -264,6 +260,11 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
     }
 
     @Override
+    public void deleteFilm(long filmId) {
+        delete(DELETE_FILM_QUERY, filmId);
+    }
+
+    @Override
     public void addLikeToFilm(long filmId, long userId) {
         insert(ADD_LIKE_TO_FILM_QUERY, filmId, userId);
     }
@@ -275,7 +276,7 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
 
     @Override
     public List<Film> showPopularFilmsByGenreYear(int count, Long genreId, Integer year) {
-        return extractMany(GET_POPULAR_FILMS_BY_GENRE_YEAR_QUERY, listExtractor, genreId, genreId, year, year, count);
+    return extractMany(SHOW_POPULAR_FILMS_BY_GENRE_YEAR_QUERY, listExtractor, genreId, genreId, year, year, count);
     }
 
     @Override
@@ -301,9 +302,8 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
         return jdbc.queryForObject(GET_LIKES_COUNT_QUERY, Integer.class, filmId);
     }
 
-    @Override
-    public List<Film> showCommonLikedFilms(long userId, long friendId) {
-        return extractMany(SHOW_COMMON_LIKED_FILMS_QUERY, listExtractor, userId, friendId);
-    }
-
+@Override
+public List<Film> showCommonLikedFilms(long userId, long friendId) {
+    return extractMany(SHOW_COMMON_LIKED_FILMS_QUERY, listExtractor, userId, friendId);
+}
 }

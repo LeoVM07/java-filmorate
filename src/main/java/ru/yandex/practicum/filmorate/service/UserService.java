@@ -33,6 +33,13 @@ public class UserService {
         return repository.updateUser(user);
     }
 
+    public Map<String, String> deleteUser(long userId) {
+        checkUser(userId);
+        repository.deleteUser(userId);
+        log.info("Пользователь с id {} был удалён из базы данных", userId);
+        return Map.of("result", String.format("user with id %d was deleted", userId));
+    }
+
     public Map<String, String> addFriend(long userId, long friendId) {
         checkUser(userId);
         checkUser(friendId);
