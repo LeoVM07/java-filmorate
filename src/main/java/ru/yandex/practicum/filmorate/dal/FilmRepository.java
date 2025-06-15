@@ -269,7 +269,6 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
             """;
 
 
-
     @Autowired
     public FilmRepository(JdbcTemplate jdbc,
                           FilmResultSetExtractor extractor,
@@ -358,7 +357,7 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
 
     @Override
     public List<Film> showPopularFilmsByGenreYear(int count, Long genreId, Integer year) {
-    return extractMany(SHOW_POPULAR_FILMS_BY_GENRE_YEAR_QUERY, listExtractor, genreId, genreId, year, year, count);
+        return extractMany(SHOW_POPULAR_FILMS_BY_GENRE_YEAR_QUERY, listExtractor, genreId, genreId, year, year, count);
     }
 
     @Override
@@ -396,7 +395,6 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
     }
 
 
-
     public List<Film> showLikedFilmsByUser(long userId) {
         return extractMany(GET_LIKED_FILMS_BY_USER, listExtractor, userId);
     }
@@ -406,9 +404,9 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
         return jdbc.queryForObject(GET_LIKES_COUNT_QUERY, Integer.class, filmId);
     }
 
-@Override
-public List<Film> showCommonLikedFilms(long userId, long friendId) {
-    return extractMany(SHOW_COMMON_LIKED_FILMS_QUERY, listExtractor, userId, friendId);
+    @Override
+    public List<Film> showCommonLikedFilms(long userId, long friendId) {
+        return extractMany(SHOW_COMMON_LIKED_FILMS_QUERY, listExtractor, userId, friendId);
 
-}
+    }
 }
