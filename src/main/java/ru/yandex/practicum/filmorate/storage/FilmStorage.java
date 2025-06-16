@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import ru.yandex.practicum.filmorate.enums.SearchCriteria;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
@@ -15,9 +16,9 @@ public interface FilmStorage {
 
     Film updateFilm(Film film);
 
-    void deleteFilm(long filmID); // ← добавлено из develop
+    void deleteFilm(long filmID);
 
-    void addLikeToFilm(long filmId, long userId); // ← объединено
+    void addLikeToFilm(long filmId, long userId);
 
     void deleteLikeFromFilm(long filmId, long userId);
 
@@ -25,10 +26,13 @@ public interface FilmStorage {
 
     List<Film> showFilmsByDirector(long directorId, String sortFilmsBy);
 
+    List<Film> searchFilms(String query, List<SearchCriteria> searchCriteria);
+
     List<Film> showLikedFilmsByUser(long userId);
 
     List<Film> showCommonLikedFilms(long userId, long friendId);
 
     int countLikesByFilmId(long filmId);
+
 
 }
