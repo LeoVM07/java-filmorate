@@ -36,7 +36,6 @@ public class UserRepository extends BaseRepository<User> implements UserStorage 
             WHERE f1.user_id = ? AND f2.user_id = ?;
             """;
 
-
     public UserRepository(JdbcTemplate jdbc, UserRowMapper mapper) {
         super(jdbc);
         this.mapper = mapper;
