@@ -8,6 +8,11 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.*;
 import ru.yandex.practicum.filmorate.enums.EventType;
 import ru.yandex.practicum.filmorate.enums.Operation;
+import ru.yandex.practicum.filmorate.dal.FilmRepository;
+import ru.yandex.practicum.filmorate.dal.GenreRepository;
+import ru.yandex.practicum.filmorate.dal.MpaRepository;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.enums.SearchCriteria;
 import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.FeedRecord;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -111,6 +116,36 @@ public class FilmService {
         return filmsByDirector;
     }
 
+    public List<Film> showCommonLikedFilms(@Positive long userId, @Positive long friendId) {
+        checkUser(userId);
+        checkUser(friendId);
+        log.info("Запрошены общие фильмы пользователей {} и {}", userId, friendId);
+        return filmRepository.showCommonLikedFilms(userId, friendId);
+    }
+
+    public List<Film> showRecommendedFilms(@Positive long userId) {
+        checkUser(userId);
+        log.info("Запрошенные рекомендации для userId={}", userId);
+        List<Film> films = filmRepository.showRecommendedFilms(userId);
+        log.info("Найдено {} рекомендуемых фильмов для userId={}", films.size(), userId);
+        return films;
+    public List<Film> searchFilms(String query, String[] by) {
+        List<SearchCriteria> searchCriteria = checkSearchCriteria(by);
+        return filmRepository.searchFilms(query, searchCriteria);
+    }
+
+    private List<SearchCriteria> checkSearchCriteria(String[] by) {
+        List<SearchCriteria> searchCriteria = new ArrayList<>(by.length);
+        for (String criteria : by) {
+            searchCriteria.add(SearchCriteria.fromString(criteria));
+        }
+
+        if (searchCriteria.isEmpty() || searchCriteria.size() > 2) {
+            throw new SearchCriteriaException("Некорректные критерии поиска");
+        }
+        return searchCriteria;
+    }
+
     private Film checkFilm(long filmId) {
         try {
             return filmRepository.showFilm(filmId)
@@ -142,13 +177,6 @@ public class FilmService {
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new UserIdException(userId));
-    }
-
-    public List<Film> showCommonLikedFilms(@Positive long userId, @Positive long friendId) {
-        checkUser(userId);
-        checkUser(friendId);
-        log.info("Запрошены общие фильмы пользователей {} и {}", userId, friendId);
-        return filmRepository.showCommonLikedFilms(userId, friendId);
     }
 
 }
