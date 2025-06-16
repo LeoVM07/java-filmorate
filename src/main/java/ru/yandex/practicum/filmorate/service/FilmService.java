@@ -97,6 +97,19 @@ public class FilmService {
         return filmsByDirector;
     }
 
+    public List<Film> showCommonLikedFilms(@Positive long userId, @Positive long friendId) {
+        checkUser(userId);
+        checkUser(friendId);
+        log.info("Запрошены общие фильмы пользователей {} и {}", userId, friendId);
+        return filmRepository.showCommonLikedFilms(userId, friendId);
+    }
+
+    public List<Film> showRecommendedFilms(@Positive long userId) {
+        checkUser(userId);
+        log.info("Запрошенные рекомендации для userId={}", userId);
+        List<Film> films = filmRepository.showRecommendedFilms(userId);
+        log.info("Найдено {} рекомендуемых фильмов для userId={}", films.size(), userId);
+        return films;
     public List<Film> searchFilms(String query, String[] by) {
         List<SearchCriteria> searchCriteria = checkSearchCriteria(by);
         return filmRepository.searchFilms(query, searchCriteria);
@@ -145,13 +158,6 @@ public class FilmService {
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new UserIdException(userId));
-    }
-
-    public List<Film> showCommonLikedFilms(@Positive long userId, @Positive long friendId) {
-        checkUser(userId);
-        checkUser(friendId);
-        log.info("Запрошены общие фильмы пользователей {} и {}", userId, friendId);
-        return filmRepository.showCommonLikedFilms(userId, friendId);
     }
 
 }

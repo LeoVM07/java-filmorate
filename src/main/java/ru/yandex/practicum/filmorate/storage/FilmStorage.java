@@ -22,7 +22,7 @@ public interface FilmStorage {
 
     void deleteLikeFromFilm(long filmId, long userId);
 
-    List<Film> showPopularFilmsByGenreYear(int count, Long genreId, Integer year); // ← формат из develop
+    List<Film> showPopularFilmsByGenreYear(int count, Long genreId, Integer year);
 
     List<Film> showFilmsByDirector(long directorId, String sortFilmsBy);
 
@@ -34,5 +34,6 @@ public interface FilmStorage {
 
     int countLikesByFilmId(long filmId);
 
+    List<Film> showRecommendedFilms(long userId);
 
 }
