@@ -129,6 +129,8 @@ public class FilmService {
         List<Film> films = filmRepository.showRecommendedFilms(userId);
         log.info("Найдено {} рекомендуемых фильмов для userId={}", films.size(), userId);
         return films;
+    }
+
     public List<Film> searchFilms(String query, String[] by) {
         List<SearchCriteria> searchCriteria = checkSearchCriteria(by);
         return filmRepository.searchFilms(query, searchCriteria);

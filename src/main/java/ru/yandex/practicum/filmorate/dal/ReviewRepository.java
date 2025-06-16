@@ -18,40 +18,50 @@ public class ReviewRepository extends BaseRepository<Review> implements ReviewSt
             INSERT INTO reviews (content, is_positive, user_id, film_id)
             VALUES (?, ?, ?, ?)
             """;
+
     private static final String UPDATE_REVIEW_QUERY = """
             UPDATE reviews
             SET content = ?, is_positive = ?
             WHERE review_id = ?
             """;
+
     private static final String DELETE_REVIEW_QUERY = "DELETE FROM reviews WHERE review_id = ?";
+
     private static final String SHOW_REVIEW_BY_ID_QUERY = "SELECT * FROM reviews WHERE review_id = ?";
+
     private static final String SHOW_REVIEWS_BY_FILM_QUERY = """
             SELECT * FROM reviews
             WHERE film_id = ?
             ORDER BY useful DESC
             LIMIT ?
             """;
+
     private static final String SHOW_ALL_REVIEWS_QUERY = """
             SELECT * FROM reviews
             ORDER BY useful DESC
             LIMIT ?
             """;
+
     private static final String ADD_LIKE_QUERY = """
             INSERT INTO review_likes (review_id, user_id, is_like)
             VALUES (?, ?, true)
             """;
+
     private static final String ADD_DISLIKE_QUERY = """
             INSERT INTO review_likes (review_id, user_id, is_like)
             VALUES (?, ?, false)
             """;
+
     private static final String GET_LIKE_STATUS_QUERY = """
             SELECT is_like FROM review_likes
             WHERE review_id = ? AND user_id = ?
             """;
+
     private static final String REMOVE_LIKE_QUERY = """
             DELETE FROM review_likes
             WHERE review_id = ? AND user_id = ?
             """;
+
     private static final String UPDATE_USEFUL_QUERY = """
             UPDATE reviews
             SET useful = useful + ?

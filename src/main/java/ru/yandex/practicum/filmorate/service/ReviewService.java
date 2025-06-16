@@ -43,14 +43,13 @@ public class ReviewService {
 
     public Review updateReview(Review review) {
         checkReviewExists(review.getReviewId());
-
         Review updatedReview = reviewStorage.updateReview(review);
         feedStorage.addFeedRecord(new FeedRecord(
                 Timestamp.from(Instant.now()).getTime(),
-                review.getUserId(),
+                updatedReview.getUserId(),
                 EventType.REVIEW,
                 Operation.UPDATE,
-                review.getReviewId()));
+                updatedReview.getReviewId()));
         log.info("Обновлен отзыв ID: {}", updatedReview.getReviewId());
         return updatedReview;
     }

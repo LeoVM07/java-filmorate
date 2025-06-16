@@ -16,6 +16,7 @@ public class FeedRecordRepository extends BaseRepository<FeedRecord> implements 
             INSERT INTO feed (feed_timestamp, user_id, event_type, operation, entity_id)
             VALUES(?, ?, ?, ?, ?);
             """;
+
     private static final String SHOW_FEED_BY_USER_ID_QUERY = "SELECT * FROM feed WHERE user_id =?";
 
     public FeedRecordRepository(JdbcTemplate jdbc, FeedRecordRowMapper mapper) {

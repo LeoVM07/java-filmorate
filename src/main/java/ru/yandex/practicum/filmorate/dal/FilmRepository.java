@@ -39,6 +39,7 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
             LEFT JOIN film_directors fd ON films.film_id = fd.film_id
             LEFT JOIN directors d ON fd.director_id = d.director_id;
             """;
+
     private static final String SHOW_FILM_BY_ID_QUERY = """
             SELECT films.*,
             fg.genre_id,
@@ -121,10 +122,15 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
             WHERE film_id = ?;
             """;
     private static final String DELETE_FILM_QUERY = "DELETE films WHERE film_id = ?";
+
     private static final String ADD_FILM_GENRE_QUERY = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
+
     private static final String DELETE_FILM_GENRE_QUERY = "DELETE film_genres WHERE film_id = ?";
+
     private static final String ADD_LIKE_TO_FILM_QUERY = "INSERT INTO likes(film_id, user_id) VALUES(?, ?);";
+
     private static final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE likes WHERE film_id = ? AND user_id = ?";
+
     private static final String SHOW_POPULAR_FILMS_BY_GENRE_YEAR_QUERY = """
             SELECT f.*,
             mpa.rating_id,
@@ -441,8 +447,6 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
 
     @Override
     public List<Film> showRecommendedFilms(long userId) {
-            return extractMany(SHOW_RECOMMENDED_FILMS_QUERY, listExtractor, userId, userId);
-
-
+        return extractMany(SHOW_RECOMMENDED_FILMS_QUERY, listExtractor, userId, userId);
     }
 }

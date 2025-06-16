@@ -96,6 +96,7 @@ public class UserService {
 
     public List<FeedRecord> showFeedByUserId(long userId) {
         log.trace("Выведена лента событий пользователя с id {}", userId);
+        checkUser(userId);
         return feedRecordRepository.showFeedByUserId(userId);
     }
 
