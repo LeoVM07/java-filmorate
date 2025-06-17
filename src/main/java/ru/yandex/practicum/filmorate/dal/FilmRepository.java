@@ -132,26 +132,35 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
     private static final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE likes WHERE film_id = ? AND user_id = ?";
 
     private static final String SHOW_POPULAR_FILMS_BY_GENRE_YEAR_QUERY = """
-            SELECT f.*,
+            WITH top_films AS (
+                SELECT f.film_id
+                FROM films f
+                LEFT JOIN film_genres fg ON f.film_id = fg.film_id
+                LEFT JOIN likes l ON f.film_id = l.film_id
+                WHERE (? IS NULL OR fg.genre_id = ?)
+                  AND (? IS NULL OR EXTRACT(YEAR FROM f.release_date) = ?)
+                GROUP BY f.film_id
+                ORDER BY COUNT(l.like_id) DESC, f.film_id DESC
+                LIMIT ?
+            )
+            SELECT
+            f.*,
             mpa.rating_id,
             mpa.rating_name,
             fg.genre_id,
             g.genre_name,
-            COUNT (l.like_id),
             fd.director_id,
             d.director_name
-            FROM films f
-            LEFT JOIN film_genres AS fg ON f.film_id = fg.film_id
-            LEFT JOIN genres AS g ON fg.genre_id = g.genre_id
-            LEFT JOIN mpa_rating AS mpa ON f.rating_id = mpa.rating_id
+            FROM top_films tf
+            JOIN films f ON tf.film_id = f.film_id
+            LEFT JOIN film_genres fg ON f.film_id = fg.film_id
+            LEFT JOIN genres g ON fg.genre_id = g.genre_id
+            LEFT JOIN mpa_rating mpa ON f.rating_id = mpa.rating_id
             LEFT JOIN film_directors fd ON f.film_id = fd.film_id
             LEFT JOIN directors d ON fd.director_id = d.director_id
-            LEFT JOIN likes as l ON f.film_id = l.film_id
-            WHERE (? IS NULL OR fg.genre_id = ?)
-            AND (? IS NULL OR EXTRACT(YEAR FROM f.release_date) = ?)
-            GROUP BY f.film_id, fg.genre_id
-            ORDER BY COUNT(l.like_id) DESC, f.film_id DESC
-            LIMIT ?;
+            ORDER BY (
+                SELECT COUNT(*) FROM likes l WHERE l.film_id = f.film_id
+            ) DESC, f.film_id ASC;
             """;
 
     private static final String DELETE_FILM_DIRECTORS_QUERY = """
@@ -183,7 +192,8 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
             LEFT JOIN film_directors fd ON f.film_id = fd.film_id
             LEFT JOIN directors d ON fd.director_id = d.director_id
             LEFT JOIN likes as l ON f.film_id = l.film_id
-            WHERE d.director_name LIKE '%' || ? || '%' OR f.name LIKE '%' || ? || '%'
+            WHERE UPPER(d.director_name) LIKE UPPER(CONCAT('%', ?, '%')) OR
+            UPPER(f.name) LIKE UPPER(CONCAT('%', ?, '%'))
             GROUP BY f.film_id, fg.genre_id
             ORDER BY COUNT(l.like_id) DESC, f.film_id ASC;
             """;
@@ -209,7 +219,7 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
             LEFT JOIN film_directors fd ON f.film_id = fd.film_id
             LEFT JOIN directors d ON fd.director_id = d.director_id
             LEFT JOIN likes as l ON f.film_id = l.film_id
-            WHERE d.director_name LIKE '%' || ? || '%'
+            WHERE UPPER(d.director_name) LIKE UPPER(CONCAT('%', ?, '%'))
             GROUP BY f.film_id, fg.genre_id
             ORDER BY COUNT(l.like_id) DESC, f.film_id ASC;
             """;
@@ -235,7 +245,7 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
             LEFT JOIN film_directors fd ON f.film_id = fd.film_id
             LEFT JOIN directors d ON fd.director_id = d.director_id
             LEFT JOIN likes as l ON f.film_id = l.film_id
-            WHERE f.name LIKE '%' || ? || '%'
+            WHERE UPPER(f.name) LIKE UPPER(CONCAT('%', ?, '%'))
             GROUP BY f.film_id, fg.genre_id
             ORDER BY COUNT(l.like_id) DESC, f.film_id ASC;
             """;
