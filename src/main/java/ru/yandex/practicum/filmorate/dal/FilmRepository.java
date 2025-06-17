@@ -420,7 +420,6 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
     }
 
     @Override
-
     public List<Film> searchFilms(String query, List<SearchCriteria> searchCriteria) {
 
         if (searchCriteria.size() == 2) {
@@ -440,7 +439,7 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
         }
     }
 
-
+    @Override
     public List<Film> showLikedFilmsByUser(long userId) {
         return extractMany(GET_LIKED_FILMS_BY_USER, listExtractor, userId);
     }

@@ -40,6 +40,5 @@ public class FilmResultSetExtractor implements ResultSetExtractor<Film> {
         } while (rs.next());
 
         return film;
-
     }
 }

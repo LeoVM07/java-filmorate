@@ -22,6 +22,7 @@ public class FeedRecordRowMapper implements RowMapper<FeedRecord> {
                 rs.getLong("entity_id")
         );
         fr.setEventId(rs.getLong("event_id"));
+
         return fr;
     }
 }

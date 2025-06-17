@@ -68,11 +68,8 @@ public class ReviewRepository extends BaseRepository<Review> implements ReviewSt
             WHERE review_id = ?
             """;
 
-    private final RowMapper<Review> reviewRowMapper;
-
     public ReviewRepository(JdbcTemplate jdbc, ReviewRowMapper reviewRowMapper) {
         super(jdbc);
-        this.reviewRowMapper = reviewRowMapper;
         this.mapper = reviewRowMapper;
     }
 

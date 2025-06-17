@@ -18,10 +18,14 @@ public class GenreService {
     private final GenreRepository repository;
 
     public List<Genre> showAllGenres() {
+        log.trace("Выведен список всех жанров");
+
         return repository.showAllGenres();
     }
 
     public Genre showGenreById(long genreId) {
+        log.info("Выведен жанр c id {}", genreId);
+
         return checkGenre(genreId);
     }
 

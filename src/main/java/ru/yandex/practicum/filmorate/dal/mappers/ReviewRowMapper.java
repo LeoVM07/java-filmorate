@@ -19,6 +19,7 @@ public class ReviewRowMapper implements RowMapper<Review>, Serializable {
         review.setUserId(rs.getLong("user_id"));
         review.setFilmId(rs.getLong("film_id"));
         review.setUseful(rs.getInt("useful"));
+
         return review;
     }
 }

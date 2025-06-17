@@ -81,6 +81,4 @@ public class DirectorRepository extends BaseRepository<Director> implements Dire
             throw new DirectorIdException(directorId);
         }
     }
-
-
 }

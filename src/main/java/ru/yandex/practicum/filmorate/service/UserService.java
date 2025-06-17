@@ -24,26 +24,37 @@ public class UserService {
     private final FeedRecordRepository feedRecordRepository;
 
     public List<User> showAllUsers() {
+        log.trace("Выведен список всех пользователей");
+
         return userRepository.showAllUsers();
     }
 
     public User showUser(int userId) {
+        log.info("Выведен пользователь с id {}", userId);
+
         return checkUser(userId);
     }
 
     public User addUser(User user) {
-        return userRepository.addUser(user);
+        User userAdded = userRepository.addUser(user);
+        log.info("Добавлен пользователь с id {}", userAdded.getId());
+
+        return userAdded;
     }
 
     public User updateUser(User user) {
         checkUser(user.getId());
-        return userRepository.updateUser(user);
+        User userUpdated = userRepository.updateUser(user);
+        log.info("Обновлён пользователь с id {}", userUpdated.getId());
+
+        return userUpdated;
     }
 
     public Map<String, String> deleteUser(long userId) {
         checkUser(userId);
         userRepository.deleteUser(userId);
         log.info("Пользователь с id {} был удалён из базы данных", userId);
+
         return Map.of("result", String.format("user with id %d was deleted", userId));
     }
 
@@ -62,6 +73,7 @@ public class UserService {
                 EventType.FRIEND,
                 Operation.ADD,
                 friendId));
+
         return Map.of("result", String.format("user with id %d was added as friend", friendId));
     }
 
@@ -77,12 +89,14 @@ public class UserService {
                 EventType.FRIEND,
                 Operation.REMOVE,
                 friendId));
+
         return Map.of("result", String.format("user with id %d was removed from friend list", friendId));
     }
 
     public List<User> getAllUserFriends(long userId) {
         checkUser(userId);
         log.trace("Выведен список друзей пользователя с id:{}", userId);
+
         return userRepository.showAllUserFriends(userId);
     }
 
@@ -91,12 +105,14 @@ public class UserService {
         checkUser(userId);
         checkUser(friendId);
         log.trace("Выведен список общих друзей пользователей с id:{} и {}", userId, friendId);
+
         return userRepository.showCommonFriends(userId, friendId);
     }
 
     public List<FeedRecord> showFeedByUserId(long userId) {
-        log.trace("Выведена лента событий пользователя с id {}", userId);
         checkUser(userId);
+        log.trace("Выведена лента событий пользователя с id {}", userId);
+
         return feedRecordRepository.showFeedByUserId(userId);
     }
 

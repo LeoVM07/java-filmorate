@@ -45,6 +45,7 @@ public class FilmService {
         checkGenre(film.getGenres());
         checkMpa(film.getMpa().getId());
         filmRepository.addFilm(film);
+        log.info("Добавлен фильм с id {}", film.getId());
 
         return checkFilm(film.getId());
     }
@@ -54,6 +55,8 @@ public class FilmService {
         checkMpa(film.getMpa().getId());
         checkGenre(film.getGenres());
         filmRepository.updateFilm(film);
+        log.info("Обновлён фильм с id {}", film.getId());
+
         return checkFilm(film.getId());
     }
 
@@ -61,6 +64,7 @@ public class FilmService {
         checkFilm(filmId);
         filmRepository.deleteFilm(filmId);
         log.info("Фильм с id {} был удалён из базы данных", filmId);
+
         return Map.of("result", String.format("fim with id %d was deleted", filmId));
     }
 
@@ -75,8 +79,8 @@ public class FilmService {
                 Operation.ADD,
                 filmId));
         log.info("Фильму с id:{} был добавлен лайк от пользователя с id:{}", filmId, userId);
-        return Map.of("result", String.format("like was added to film with id %d", filmId));
 
+        return Map.of("result", String.format("like was added to film with id %d", filmId));
     }
 
     public Map<String, String> deleteLikeFromFilm(long filmId, long userId) {
@@ -90,6 +94,7 @@ public class FilmService {
                 Operation.REMOVE,
                 filmId));
         log.info("У фильму с id:{} был удалён лайк от пользователя с id:{}", filmId, userId);
+
         return Map.of("result", String.format("like was removed from film with id %d", filmId));
     }
 
@@ -113,6 +118,7 @@ public class FilmService {
         if (filmsByDirector.isEmpty()) {
             throw new DirectorIdException(directorId);
         }
+        log.trace("Выведен список фильмов, сортировка по директорам");
         return filmsByDirector;
     }
 
@@ -120,6 +126,7 @@ public class FilmService {
         checkUser(userId);
         checkUser(friendId);
         log.info("Запрошены общие фильмы пользователей {} и {}", userId, friendId);
+
         return filmRepository.showCommonLikedFilms(userId, friendId);
     }
 
@@ -128,11 +135,14 @@ public class FilmService {
         log.info("Запрошенные рекомендации для userId={}", userId);
         List<Film> films = filmRepository.showRecommendedFilms(userId);
         log.info("Найдено {} рекомендуемых фильмов для userId={}", films.size(), userId);
+
         return films;
     }
 
     public List<Film> searchFilms(String query, String[] by) {
         List<SearchCriteria> searchCriteria = checkSearchCriteria(by);
+        log.trace("Поиск фильмов по критериям");
+
         return filmRepository.searchFilms(query, searchCriteria);
     }
 

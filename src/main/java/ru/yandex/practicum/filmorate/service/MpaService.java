@@ -17,10 +17,14 @@ public class MpaService {
     private final MpaRepository repository;
 
     public List<Mpa> showAllRatings() {
+        log.trace("Выведен список всех рейтингов");
+
         return repository.showALlRatings();
     }
 
     public Mpa showRatingById(long ratingId) {
+        log.info("Выведен рейтинг с id {}", ratingId);
+
         return checkMpa(ratingId);
     }
 
