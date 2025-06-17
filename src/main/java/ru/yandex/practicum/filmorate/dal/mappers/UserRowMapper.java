@@ -17,7 +17,7 @@ public class UserRowMapper implements RowMapper<User> {
                 rs.getString("login"),
                 rs.getDate("birthday").toLocalDate()
         );
-        if(rs.getString("name").isBlank()) {
+        if (rs.getString("name").isBlank()) {
             user.setName(user.getLogin());
         } else {
             user.setName(rs.getString("name"));
