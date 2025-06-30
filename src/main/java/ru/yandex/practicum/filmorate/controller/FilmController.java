@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,6 @@ public class FilmController {
 
     @GetMapping
     public ResponseEntity<List<Film>> showAllFilms() {
-        log.trace("Выведен список фильмов");
         return new ResponseEntity<>(filmService.showAllFilms(), HttpStatus.OK);
     }
 
@@ -36,15 +36,18 @@ public class FilmController {
 
     @PostMapping
     public ResponseEntity<Film> addFilm(@RequestBody @Valid Film film) {
-        log.info("Добавлен новый фильм под названием: {}, id: {}", film.getName(), film.getId());
         return new ResponseEntity<>(filmService.addFilm(film), HttpStatus.OK);
 
     }
 
     @PutMapping
     public ResponseEntity<Film> updateFilm(@RequestBody @Valid Film film) {
-        log.info("Обновлён фильм под названием: {}, id: {}", film.getName(), film.getId());
         return new ResponseEntity<>(filmService.updateFilm(film), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{filmId}")
+    public ResponseEntity<Map<String, String>> deleteFilm(@PathVariable("filmId") long filmId) {
+        return new ResponseEntity<>(filmService.deleteFilm(filmId), HttpStatus.OK);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
@@ -63,8 +66,31 @@ public class FilmController {
     public ResponseEntity<List<Film>> showMostPopular(
             @RequestParam(name = "count",
                     required = false,
-                    defaultValue = "10") int count) {
-        return new ResponseEntity<>(filmService.showMostPopularFilms(count), HttpStatus.OK);
+                    defaultValue = "10") int count,
+            @RequestParam(name = "genreId", required = false) Long genreId,
+            @RequestParam(name = "year", required = false) Integer year
+    ) {
+        return new ResponseEntity<>(filmService.showPopularFilmsByGenreYear(count, genreId, year), HttpStatus.OK);
     }
 
+    @GetMapping("/director/{directorId}")
+    public ResponseEntity<List<Film>> showFilmsByDirectorSorted(@PathVariable("directorId") long directorId,
+                                                                @RequestParam(name = "sortBy") String sortFilmsBy) {
+        return new ResponseEntity<>(filmService.showFilmsByDirectorSorted(directorId, sortFilmsBy), HttpStatus.OK);
+    }
+
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Film>> searchFilms(@RequestParam(name = "query") String query,
+                                                  @RequestParam(name = "by") String[] by) {
+        return new ResponseEntity<>(filmService.searchFilms(query, by), HttpStatus.OK);
+    }
+
+
+    @GetMapping("/common")
+    public ResponseEntity<List<Film>> showCommonFilms(@RequestParam @Positive long userId,
+                                                      @RequestParam @Positive long friendId) {
+        return new ResponseEntity<>(filmService.showCommonLikedFilms(userId, friendId), HttpStatus.OK);
+
+    }
 }

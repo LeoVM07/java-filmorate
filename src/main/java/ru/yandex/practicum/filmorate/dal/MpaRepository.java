@@ -18,6 +18,7 @@ public class MpaRepository extends BaseRepository<Mpa> implements RatingStorage 
     }
 
     private static final String SHOW_ALL_RATINGS_QUERY = "SELECT * FROM mpa_rating";
+
     private static final String SHOW_RATING_BY_ID_QUERY = "SELECT * FROM mpa_rating WHERE rating_id = ?";
 
 

@@ -13,20 +13,29 @@ import java.util.Optional;
 public class UserRepository extends BaseRepository<User> implements UserStorage {
 
     private static final String SHOW_ALL_USERS_QUERY = "SELECT * FROM users";
+
     private static final String SHOW_USER_BY_ID_QUERY = "SELECT * FROM users WHERE user_id = ?";
+
     private static final String ADD_USER_QUERY = "INSERT INTO users(email, login, name, birthday)" +
             "VALUES(?, ?, ?, ?)";
+
     private static final String UPDATE_USER_QUERY = "UPDATE users SET email = ?, login = ?, name = ?, " +
             "birthday = ? WHERE user_id = ?";
+
+    private static final String DELETE_USER_QUERY = "DELETE users WHERE user_id = ?";
+
     private static final String ADD_FRIEND_TO_USER_QUERY = "INSERT INTO friendship (user_id, friend_id) VALUES(?, ?)";
+
     private static final String DELETE_FRIEND_FROM_USER_QUERY =
             "DELETE friendship WHERE user_id = ? AND friend_id =?";
+
     private static final String SHOW_ALL_USER_FRIENDS_QUERY = """
             SELECT users.*
             FROM users
             LEFT JOIN friendship ON users.user_id = friendship.friend_id
             WHERE friendship.user_id = ?;
             """;
+
     private static final String SHOW_COMMON_FRIEND_QUERY = """
             SELECT users.*
             FROM friendship f1
@@ -34,7 +43,6 @@ public class UserRepository extends BaseRepository<User> implements UserStorage 
             LEFT JOIN users ON f1.friend_id = users.user_id
             WHERE f1.user_id = ? AND f2.user_id = ?;
             """;
-
 
     public UserRepository(JdbcTemplate jdbc, UserRowMapper mapper) {
         super(jdbc);
@@ -77,6 +85,11 @@ public class UserRepository extends BaseRepository<User> implements UserStorage 
         );
 
         return user;
+    }
+
+    @Override
+    public void deleteUser(long userId) {
+        delete(DELETE_USER_QUERY, userId);
     }
 
     @Override

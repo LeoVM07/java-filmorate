@@ -17,6 +17,7 @@ public class GenreRepository extends BaseRepository<Genre> implements GenreStora
     }
 
     private static final String SHOW_ALL_GENRES_QUERY = "SELECT * FROM genres";
+
     private static final String SHOW_RATING_BY_ID_QUERY = "SELECT * FROM genres WHERE genre_id = ?";
 
 

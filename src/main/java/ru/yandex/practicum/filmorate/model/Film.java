@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.comparator.DirectorIdComparator;
 import ru.yandex.practicum.filmorate.comparator.GenreIdComparator;
 import ru.yandex.practicum.filmorate.validator.ReleaseDate;
 
@@ -34,4 +35,6 @@ public class Film {
     private Mpa mpa;
 
     private final Set<Genre> genres = new TreeSet<>(new GenreIdComparator());
+
+    private final Set<Director> directors = new TreeSet<>(new DirectorIdComparator());
 }
